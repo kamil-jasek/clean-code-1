@@ -10,6 +10,7 @@ public class Item {
     private String name;
     private BigDecimal price;
     private int quantity;
+    private Float weight;
 
     public UUID getId() {
         return id;
@@ -53,11 +54,20 @@ public class Item {
         }
         Item item = (Item) o;
         return quantity == item.quantity && Objects.equals(id, item.id) && Objects
-            .equals(name, item.name) && Objects.equals(price, item.price);
+            .equals(name, item.name) && Objects.equals(price, item.price) && Objects
+            .equals(weight, item.weight);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, price, quantity);
+        return Objects.hash(id, name, price, quantity, weight);
+    }
+
+    public Float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Float weight) {
+        this.weight = weight;
     }
 }

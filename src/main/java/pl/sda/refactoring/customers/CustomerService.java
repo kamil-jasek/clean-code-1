@@ -40,10 +40,10 @@ public class CustomerService {
                 if (emailM.matches()) {
                     customer.setEmail(email);
                 }
-                if (fName.length() > 0 && fName.matches("/\\p{L}{2,100}/")) {
+                if (fName.length() > 0 && fName.matches("[\\p{L}\\s\\.]{2,100}")) {
                     customer.setfName(fName);
                 }
-                if (lName.length() > 0 && lName.matches("/\\p{L}{2,100}/")) {
+                if (lName.length() > 0 && lName.matches("[\\p{L}\\s\\.]{2,100}")) {
                     customer.setlName(lName);
                 }
                 if (pesel.length() == 11 && pesel.matches("/\\d{11}/")) {
@@ -102,7 +102,7 @@ public class CustomerService {
                 if (emailM.matches()) {
                     customer.setEmail(email);
                 }
-                if (name.length() > 0 && name.matches("/\\p{L}{2,100}/")) {
+                if (name.length() > 0 && name.matches("[\\p{L}\\s\\.]{2,100}")) {
                     customer.setCompName(name);
                 }
                 if (vat.length() == 10 && vat.matches("/\\d{10}/")) {

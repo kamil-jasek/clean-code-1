@@ -1,5 +1,6 @@
 package pl.sda.refactoring.customers;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class OrderService {
                 itemsList = new ArrayList<>();
             }
             itemsList.addAll(items);
+            order.setItems(itemsList);
 
             // add discount
             final var optDiscCoupon = couponsDao.findByCode(coupon);
@@ -56,7 +58,12 @@ public class OrderService {
                 }
             }
 
+            // calculate delivery
+            computeDelivery(items, order);
+
             var cust = optional.get();
+
+            // save to db and send email
             dao.save(order);
             var sendEmail = sendEmail(cust.getEmail(),
                 "Your order is placed!",
@@ -65,6 +72,24 @@ public class OrderService {
         }
 
         return result;
+    }
+
+    private void computeDelivery(List<Item> items, Order order) {
+        var tp = BigDecimal.ZERO;
+        var tw = 0;
+        for (Item i : items) {
+            tp = tp.add(i.getPrice().multiply(new BigDecimal(i.getQuantity()))); // tp = tp + (i.price * i.quantity)
+            tw += (i.getQuantity() * i.getWeight());
+        }
+        if (tp.compareTo(new BigDecimal(250)) > 0 && tw < 1) {
+            order.setDeliveryCost(BigDecimal.ZERO);
+        } else if (tw < 1) {
+            order.setDeliveryCost(new BigDecimal(15));
+        } else if (tw < 5) {
+            order.setDeliveryCost(new BigDecimal(35));
+        } else {
+            order.setDeliveryCost(new BigDecimal(50));
+        }
     }
 
     /**
@@ -89,8 +114,14 @@ public class OrderService {
                 itemsList = new ArrayList<>();
             }
             itemsList.addAll(items);
+            order.setItems(itemsList);
+
+            computeDelivery(items, order);
+
+            // save to db
             dao.save(order);
 
+            // send email
             final var sendEmail = sendEmail(optional.get().getEmail(),
                 "Your order is placed!",
                 "Thanks for ordering our products. Your order will be send very soon!");

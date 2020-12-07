@@ -1,11 +1,16 @@
 package pl.sda.refactoring.customers;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The customer order
+ */
 public class Order {
 
+    // order statuses
     public static final int ORDER_STATUS_WAITING = 1;
     public static final int ORDER_STATUS_SENT = 2;
     public static final int ORDER_STATUS_DELIVERED = 3;
@@ -22,6 +27,8 @@ public class Order {
     private List<Item> items;
 
     private int status;
+
+    public BigDecimal deliveryCost;
 
     public UUID getId() {
         return id;
@@ -70,5 +77,13 @@ public class Order {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public BigDecimal getDeliveryCost() {
+        return deliveryCost;
+    }
+
+    public void setDeliveryCost(BigDecimal deliveryCost) {
+        this.deliveryCost = deliveryCost;
     }
 }
