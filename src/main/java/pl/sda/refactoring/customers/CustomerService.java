@@ -1,23 +1,16 @@
 package pl.sda.refactoring.customers;
 
 import java.time.LocalDateTime;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 public class CustomerService {
 
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+        "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
+
     private CustomerDao dao;
+    private MailSender mailSender;
 
     /**
      * Register new person type customer
@@ -32,37 +25,31 @@ public class CustomerService {
         var result = false;
         var customer = new Customer();
         customer.setType(Customer.PERSON);
-        if (!personExists(email, pesel)) {
-            if (email != null && firstName != null && lastName != null && pesel != null) {
-                var emailP = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
-                var emailM = emailP.matcher(email);
-                if (emailM.matches()) {
-                    customer.setEmail(email);
-                }
-                if (firstName.length() > 0 && firstName.matches("[\\p{L}\\s\\.]{2,100}")) {
-                    customer.setfName(firstName);
-                }
-                if (lastName.length() > 0 && lastName.matches("[\\p{L}\\s\\.]{2,100}")) {
-                    customer.setlName(lastName);
-                }
-                if (pesel.length() == 11 && pesel.matches("/\\d{11}/")) {
-                    customer.setPesel(pesel);
-                }
+        if (!personExists(email, pesel) && isPersonDataNotNull(email, firstName, lastName, pesel)) {
+            if (matchesEmail(email)) {
+                customer.setEmail(email);
+            }
+            if (matchesName(firstName)) {
+                customer.setfName(firstName);
+            }
+            if (matchesName(lastName)) {
+                customer.setlName(lastName);
+            }
+            if (matchesPesel(pesel)) {
+                customer.setPesel(pesel);
+            }
 
-                if (isValidPerson(customer)) {
-                    result = true;
-                }
+            if (isValidPerson(customer)) {
+                result = true;
             }
         }
 
-        if (result == true) {
+        if (result) {
             customer.setCtime(LocalDateTime.now());
             String subj;
             String body;
             if (verified) {
-                customer.setVerf(verified);
-                customer.setVerfTime(LocalDateTime.now());
-                customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
+                customer.markVerified();
                 subj = "Your are now verified customer!";
                 body = "<b>Hi " + firstName + "</b><br/>" +
                     "Thank you for registering in our service. Now you are verified customer!";
@@ -72,13 +59,28 @@ public class CustomerService {
                 body = "<b>Hi " + firstName + "</b><br/>" +
                     "We registered you in our service. Please wait for verification!";
             }
-            genCustomerId(customer);
+            customer.setId(UUID.randomUUID());
             dao.save(customer);
-            // send email to customer
-            sendEmail(email, subj, body);
+            mailSender.send(email, subj, body);
         }
 
         return result;
+    }
+
+    private boolean matchesPesel(String pesel) {
+        return pesel.matches("/\\d{11}/");
+    }
+
+    private boolean matchesEmail(String email) {
+        return EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    private boolean matchesName(String name) {
+        return name.matches("[\\p{L}\\s\\.]{2,100}");
+    }
+
+    private boolean isPersonDataNotNull(String email, String firstName, String lastName, String pesel) {
+        return email != null && firstName != null && lastName != null && pesel != null;
     }
 
     private boolean personExists(String email, String pesel) {
@@ -105,7 +107,7 @@ public class CustomerService {
                 if (emailM.matches()) {
                     customer.setEmail(email);
                 }
-                if (name.length() > 0 && name.matches("[\\p{L}\\s\\.]{2,100}")) {
+                if (name.length() > 0 && matchesName(name)) {
                     customer.setCompName(name);
                 }
                 if (vat.length() == 10 && vat.matches("/\\d{10}/")) {
@@ -135,10 +137,10 @@ public class CustomerService {
                 body = "<b>Hello</b><br/>" +
                     "We registered your company: " + name + " in our service. Please wait for verification!";
             }
-            genCustomerId(customer);
+            customer.setId(UUID.randomUUID());
             dao.save(customer);
             // send email to customer
-            sendEmail(email, subj, body);
+            mailSender.send(email, subj, body);
         }
 
         return result;
@@ -172,53 +174,15 @@ public class CustomerService {
         return customer.getEmail() != null && customer.getfName() != null && customer.getlName() != null && customer.getPesel() != null;
     }
 
-    private void genCustomerId(Customer customer) {
-        customer.setId(UUID.randomUUID());
-    }
-
     private boolean isValid(boolean flag) {
         return flag == true;
     }
 
-    private boolean sendEmail(String address, String subj, String msg) {
-        Properties prop = new Properties();
-        prop.put("mail.smtp.auth", true);
-        prop.put("mail.smtp.starttls.enable", "true");
-        prop.put("mail.smtp.host", System.getenv().get("MAIL_SMTP_HOST"));
-        prop.put("mail.smtp.port", System.getenv().get("MAIL_SMTP_PORT"));
-        prop.put("mail.smtp.ssl.trust", System.getenv().get("MAIL_SMTP_SSL_TRUST"));
-
-        Session session = Session.getInstance(prop, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("admin", "admin");
-            }
-        });
-
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("no-reply@company.com"));
-            message.setRecipients(
-                Message.RecipientType.TO, InternetAddress.parse(address));
-            message.setSubject(subj);
-
-            MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setContent(msg, "text/html");
-
-            Multipart multipart = new MimeMultipart();
-            multipart.addBodyPart(mimeBodyPart);
-
-            message.setContent(multipart);
-
-            Transport.send(message);
-            return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
     public void setDao(CustomerDao dao) {
         this.dao = dao;
+    }
+
+    public void setMailSender(MailSender mailSender) {
+        this.mailSender = mailSender;
     }
 }

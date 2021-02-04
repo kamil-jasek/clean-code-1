@@ -164,6 +164,12 @@ public class Customer {
         this.verifBy = verifBy;
     }
 
+    void markVerified() {
+        setVerf(true);
+        setVerfTime(LocalDateTime.now());
+        setVerifBy(CustomerVerifier.AUTO_EMAIL);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
