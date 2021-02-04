@@ -1,5 +1,7 @@
 package pl.sda.refactoring.customers;
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -11,6 +13,11 @@ public class CustomerService {
 
     private CustomerDao dao;
     private MailSender mailSender;
+
+    public CustomerService(CustomerDao dao, MailSender mailSender) {
+        this.dao = requireNonNull(dao);
+        this.mailSender = requireNonNull(mailSender);
+    }
 
     /**
      * Register new person type customer
@@ -176,13 +183,5 @@ public class CustomerService {
 
     private boolean isValid(boolean flag) {
         return flag == true;
-    }
-
-    public void setDao(CustomerDao dao) {
-        this.dao = dao;
-    }
-
-    public void setMailSender(MailSender mailSender) {
-        this.mailSender = mailSender;
     }
 }
