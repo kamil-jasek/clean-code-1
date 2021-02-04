@@ -13,7 +13,7 @@ public class CustomerDao {
         throw new UnsupportedOperationException();
     }
 
-    public boolean peselExists(String pesel) {
+    public boolean peselExists(Pesel pesel) {
         throw new UnsupportedOperationException();
     }
 

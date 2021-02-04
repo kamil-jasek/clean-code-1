@@ -5,12 +5,12 @@ import static java.util.Objects.requireNonNull;
 public class RegisterPerson {
 
     private final Email email;
-    private final String firstName;
-    private final String lastName;
-    private final String pesel;
+    private final Name firstName;
+    private final Name lastName;
+    private final Pesel pesel;
     private final boolean verified;
 
-    public RegisterPerson(Email email, String firstName, String lastName, String pesel, boolean verified) {
+    public RegisterPerson(Email email, Name firstName, Name lastName, Pesel pesel, boolean verified) {
         this.email = requireNonNull(email);
         this.firstName = requireNonNull(firstName);
         this.lastName = requireNonNull(lastName);
@@ -22,15 +22,15 @@ public class RegisterPerson {
         return email;
     }
 
-    public String getFirstName() {
+    public Name getFirstName() {
         return firstName;
     }
 
-    public String getLastName() {
+    public Name getLastName() {
         return lastName;
     }
 
-    public String getPesel() {
+    public Pesel getPesel() {
         return pesel;
     }
 

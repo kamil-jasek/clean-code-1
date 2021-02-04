@@ -16,19 +16,20 @@ public class Customer {
     private UUID id;
     private int type;
     private LocalDateTime ctime;
+
     private Email email;
     private LocalDateTime verfTime;
     private boolean verf;
     private CustomerVerifier verifBy;
 
     // company data
-    private String compName;
+    private Name compName;
     private String compVat;
 
     // person data
-    private String fName;
-    private String lName;
-    private String pesel;
+    private Name fName;
+    private Name lName;
+    private Pesel pesel;
 
     // address data
     private String addrStreet;
@@ -60,11 +61,11 @@ public class Customer {
         this.ctime = ctime;
     }
 
-    public String getCompName() {
+    public Name getCompName() {
         return compName;
     }
 
-    public void setCompName(String compName) {
+    public void setCompName(Name compName) {
         this.compName = compName;
     }
 
@@ -76,27 +77,27 @@ public class Customer {
         this.compVat = compVat;
     }
 
-    public String getfName() {
+    public Name getfName() {
         return fName;
     }
 
-    public void setfName(String fName) {
+    public void setfName(Name fName) {
         this.fName = fName;
     }
 
-    public String getlName() {
+    public Name getlName() {
         return lName;
     }
 
-    public void setlName(String lName) {
+    public void setlName(Name lName) {
         this.lName = lName;
     }
 
-    public String getPesel() {
+    public Pesel getPesel() {
         return pesel;
     }
 
-    public void setPesel(String pesel) {
+    public void setPesel(Pesel pesel) {
         this.pesel = pesel;
     }
 

@@ -20,7 +20,11 @@ class CustomerServiceTest {
     void shouldRegisterNotVerifiedPerson() {
         // when
         final var result = service.registerPerson(
-            new RegisterPerson(Email.of("em@test.com"), "Jan", "Kowalski", "92893202093", false));
+            new RegisterPerson(Email.of("em@test.com"),
+                Name.of("Jan"),
+                Name.of("Kowalski"),
+                Pesel.of("92893202093"),
+                false));
 
         // then
         final var customer = verifyCustomerSaved();
@@ -29,9 +33,9 @@ class CustomerServiceTest {
         assertNotNull(customer.getId());
         assertFalse(customer.isVerf());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals("Jan", customer.getfName());
-        assertEquals("Kowalski", customer.getlName());
-        assertEquals("92893202093", customer.getPesel());
+        assertEquals(Name.of("Jan"), customer.getfName());
+        assertEquals(Name.of("Kowalski"), customer.getlName());
+        assertEquals(Pesel.of("92893202093"), customer.getPesel());
         assertNotNull(customer.getCtime());
     }
 
@@ -39,7 +43,11 @@ class CustomerServiceTest {
     void shouldRegisterVerifiedPerson() {
         // when
         final var result = service.registerPerson(
-            new RegisterPerson(Email.of("em@test.com"), "Jan", "Kowalski", "92893202093", true));
+            new RegisterPerson(Email.of("em@test.com"),
+                Name.of("Jan"),
+                Name.of("Kowalski"),
+                Pesel.of("92893202093"),
+                true));
 
         // then
         final var customer = verifyCustomerSaved();
@@ -51,9 +59,9 @@ class CustomerServiceTest {
         assertNotNull(customer.getVerfTime());
         assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifBy());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals("Jan", customer.getfName());
-        assertEquals("Kowalski", customer.getlName());
-        assertEquals("92893202093", customer.getPesel());
+        assertEquals(Name.of("Jan"), customer.getfName());
+        assertEquals(Name.of("Kowalski"), customer.getlName());
+        assertEquals(Pesel.of("92893202093"), customer.getPesel());
     }
 
     @Test
@@ -68,7 +76,7 @@ class CustomerServiceTest {
     @Test
     void shouldRegisterNotVerifiedCompany() {
         // when
-        final var result = service.registerCompany(Email.of("em@test.com"), "Test S.A.", "8384783833", false);
+        final var result = service.registerCompany(Email.of("em@test.com"), Name.of("Test S.A."), "8384783833", false);
 
         // then
         final var customer = verifyCustomerSaved();
@@ -78,14 +86,14 @@ class CustomerServiceTest {
         assertNotNull(customer.getCtime());
         assertFalse(customer.isVerf());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals("Test S.A.", customer.getCompName());
+        assertEquals(Name.of("Test S.A."), customer.getCompName());
         assertEquals("8384783833", customer.getCompVat());
     }
 
     @Test
     void shouldRegisterVerifiedCompany() {
         // when
-        final var result = service.registerCompany(Email.of("em@test.com"), "Test S.A.", "8384783833", true);
+        final var result = service.registerCompany(Email.of("em@test.com"), Name.of("Test S.A."), "8384783833", true);
 
         // then
         final var customer = verifyCustomerSaved();
@@ -98,7 +106,7 @@ class CustomerServiceTest {
         assertNotNull(customer.getVerfTime());
         assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifBy());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals("Test S.A.", customer.getCompName());
+        assertEquals(Name.of("Test S.A."), customer.getCompName());
         assertEquals("8384783833", customer.getCompVat());
     }
 
