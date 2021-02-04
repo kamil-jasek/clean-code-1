@@ -2,9 +2,6 @@ package pl.sda.refactoring.customers;
 
 import static java.util.Objects.requireNonNull;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 public class CustomerService {
 
     private final CustomerDao dao;
@@ -20,19 +17,13 @@ public class CustomerService {
             return false;
         }
 
-        var customer = new Customer();
-        customer.setId(UUID.randomUUID());
-        customer.setType(Customer.PERSON);
-        customer.setCreateTime(LocalDateTime.now());
-        customer.setEmail(registerPerson.getEmail());
-        customer.setFirstName(registerPerson.getFirstName());
-        customer.setLastName(registerPerson.getLastName());
-        customer.setPesel(registerPerson.getPesel());
+        var person = new Person();
+        person.initPerson(registerPerson);
 
         String subj;
         String body;
         if (registerPerson.isVerified()) {
-            customer.markVerified();
+            person.markVerified();
             subj = "Your are now verified customer!";
             body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
                 "Thank you for registering in our service. Now you are verified customer!";
@@ -41,7 +32,7 @@ public class CustomerService {
             body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
                 "We registered you in our service. Please wait for verification!";
         }
-        dao.save(customer);
+        dao.save(person);
         mailSender.send(registerPerson.getEmail(), subj, body);
         return true;
     }
@@ -55,13 +46,8 @@ public class CustomerService {
             return false;
         }
 
-        var customer = new Customer();
-        customer.setType(Customer.COMPANY);
-        customer.setId(UUID.randomUUID());
-        customer.setEmail(registerCompany.getEmail());
-        customer.setCompanyName(registerCompany.getName());
-        customer.setCompanyVat(registerCompany.getVat());
-        customer.setCreateTime(LocalDateTime.now());
+        var customer = new Company();
+        customer.initCompany(registerCompany);
 
         String subj;
         String body;

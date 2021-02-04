@@ -19,79 +19,25 @@ public class Customer {
     private Email email;
     private CustomerVerification customerVerification;
 
-    // company data
-    private Name companyName;
-    private Vat companyVat;
-
-    // person data
-    private Name firstName;
-    private Name lastName;
-    private Pesel pesel;
-
     private Address address;
+
+    void initCustomer(int type, Email email) {
+        this.id = UUID.randomUUID();
+        this.type = type;
+        this.createTime = LocalDateTime.now();
+        this.email = email;
+    }
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public int getType() {
         return type;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-
-    public Name getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(Name companyName) {
-        this.companyName = companyName;
-    }
-
-    public Vat getCompanyVat() {
-        return companyVat;
-    }
-
-    public void setCompanyVat(Vat companyVat) {
-        this.companyVat = companyVat;
-    }
-
-    public Name getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(Name firstName) {
-        this.firstName = firstName;
-    }
-
-    public Name getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(Name lastName) {
-        this.lastName = lastName;
-    }
-
-    public Pesel getPesel() {
-        return pesel;
-    }
-
-    public void setPesel(Pesel pesel) {
-        this.pesel = pesel;
     }
 
     public void updateAddress(Address address) {
@@ -104,10 +50,6 @@ public class Customer {
 
     public Email getEmail() {
         return email;
-    }
-
-    public void setEmail(Email email) {
-        this.email = email;
     }
 
     public boolean isVerified() {
@@ -131,29 +73,12 @@ public class Customer {
             return false;
         }
         Customer customer = (Customer) o;
-        return type == customer.type && customerVerification.isVerified() == customer.customerVerification.isVerified()
-            && Objects.equals(id, customer.id)
-            && Objects.equals(createTime, customer.createTime) && Objects.equals(email, customer.email)
-            && Objects.equals(customerVerification.getVerificationTime(),
-            customer.customerVerification.getVerificationTime()) && customerVerification.getVerifier()
-            == customer.customerVerification
-            .getVerifier() && Objects
-            .equals(companyName, customer.companyName) && Objects.equals(companyVat, customer.companyVat) && Objects
-            .equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects
-            .equals(pesel, customer.pesel) && Objects.equals(address.getStreet(),
-            customer.address.getStreet()) && Objects
-            .equals(address.getCity(), customer.address.getCity()) && Objects.equals(
-            address.getZipCode(),
-            customer.address.getZipCode())
-            && Objects.equals(address.getCountryCode(), customer.address.getCountryCode());
+        return type == customer.type && id.equals(customer.id) && createTime.equals(customer.createTime) && email
+            .equals(customer.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects
-            .hash(id, type, createTime, email, customerVerification.getVerificationTime(),
-                customerVerification.isVerified(), customerVerification.getVerifier(), companyName, companyVat, firstName,
-                lastName, pesel, address.getStreet(),
-                address.getCity(), address.getZipCode(), address.getCountryCode());
+        return Objects.hash(id, type, createTime, email);
     }
 }

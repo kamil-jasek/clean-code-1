@@ -32,16 +32,16 @@ class CustomerServiceTest {
                 false));
 
         // then
-        final var customer = verifyCustomerSaved();
+        final var person = (Person) verifyCustomerSaved();
         assertTrue(result);
-        assertEquals(Customer.PERSON, customer.getType());
-        assertNotNull(customer.getId());
-        assertFalse(customer.isVerified());
-        assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Jan"), customer.getFirstName());
-        assertEquals(Name.of("Kowalski"), customer.getLastName());
-        assertEquals(Pesel.of("92893202093"), customer.getPesel());
-        assertNotNull(customer.getCreateTime());
+        assertEquals(Customer.PERSON, person.getType());
+        assertNotNull(person.getId());
+        assertFalse(person.isVerified());
+        assertEquals(Email.of("em@test.com"), person.getEmail());
+        assertEquals(Name.of("Jan"), person.getFirstName());
+        assertEquals(Name.of("Kowalski"), person.getLastName());
+        assertEquals(Pesel.of("92893202093"), person.getPesel());
+        assertNotNull(person.getCreateTime());
     }
 
     @Test
@@ -55,18 +55,18 @@ class CustomerServiceTest {
                 true));
 
         // then
-        final var customer = verifyCustomerSaved();
+        final var person = (Person) verifyCustomerSaved();
         assertTrue(result);
-        assertEquals(Customer.PERSON, customer.getType());
-        assertNotNull(customer.getId());
-        assertNotNull(customer.getCreateTime());
-        assertTrue(customer.isVerified());
-        assertNotNull(customer.getCustomerVerification().getVerificationTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getCustomerVerification().getVerifier());
-        assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Jan"), customer.getFirstName());
-        assertEquals(Name.of("Kowalski"), customer.getLastName());
-        assertEquals(Pesel.of("92893202093"), customer.getPesel());
+        assertEquals(Customer.PERSON, person.getType());
+        assertNotNull(person.getId());
+        assertNotNull(person.getCreateTime());
+        assertTrue(person.isVerified());
+        assertNotNull(person.getCustomerVerification().getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, person.getCustomerVerification().getVerifier());
+        assertEquals(Email.of("em@test.com"), person.getEmail());
+        assertEquals(Name.of("Jan"), person.getFirstName());
+        assertEquals(Name.of("Kowalski"), person.getLastName());
+        assertEquals(Pesel.of("92893202093"), person.getPesel());
     }
 
     @Test
@@ -76,7 +76,7 @@ class CustomerServiceTest {
             new RegisterCompany(Email.of("em@test.com"), Name.of("Test S.A."), Vat.of("8384783833"), false));
 
         // then
-        final var customer = verifyCustomerSaved();
+        final var customer = (Company) verifyCustomerSaved();
         assertTrue(result);
         assertEquals(Customer.COMPANY, customer.getType());
         assertNotNull(customer.getId());
@@ -94,7 +94,7 @@ class CustomerServiceTest {
             new RegisterCompany(Email.of("em@test.com"), Name.of("Test S.A."), Vat.of("8384783833"), true));
 
         // then
-        final var customer = verifyCustomerSaved();
+        final var customer = (Company) verifyCustomerSaved();
         assertTrue(result);
         assertEquals(Customer.COMPANY, customer.getType());
         assertNotNull(customer.getId());
