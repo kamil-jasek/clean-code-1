@@ -17,8 +17,10 @@ public class CustomerService {
             return false;
         }
 
-        var person = new Person();
-        person.initPerson(registerPerson);
+        final var person = new Person(registerPerson.getEmail(),
+            registerPerson.getFirstName(),
+            registerPerson.getLastName(),
+            registerPerson.getPesel());
 
         String subj;
         String body;
@@ -46,8 +48,9 @@ public class CustomerService {
             return false;
         }
 
-        var customer = new Company();
-        customer.initCompany(registerCompany);
+        var customer = new Company(registerCompany.getEmail(),
+            registerCompany.getName(),
+            registerCompany.getVat());
 
         String subj;
         String body;

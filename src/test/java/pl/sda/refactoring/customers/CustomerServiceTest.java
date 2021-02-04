@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.BDDMockito;
 
 class CustomerServiceTest {
 
@@ -83,8 +82,8 @@ class CustomerServiceTest {
         assertNotNull(customer.getCreateTime());
         assertFalse(customer.isVerified());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Test S.A."), customer.getCompanyName());
-        assertEquals(Vat.of("8384783833"), customer.getCompanyVat());
+        assertEquals(Name.of("Test S.A."), customer.getName());
+        assertEquals(Vat.of("8384783833"), customer.getVat());
     }
 
     @Test
@@ -103,8 +102,8 @@ class CustomerServiceTest {
         assertNotNull(customer.getCustomerVerification().getVerificationTime());
         assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getCustomerVerification().getVerifier());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Test S.A."), customer.getCompanyName());
-        assertEquals(Vat.of("8384783833"), customer.getCompanyVat());
+        assertEquals(Name.of("Test S.A."), customer.getName());
+        assertEquals(Vat.of("8384783833"), customer.getVat());
     }
 
     @Test
@@ -126,7 +125,10 @@ class CustomerServiceTest {
     @Test
     void shouldUpdateAddress() {
         // given
-        given(dao.findById(any())).willReturn(Optional.of(new Customer()));
+        given(dao.findById(any())).willReturn(Optional.of(new Person(Email.of("em@test.com"),
+            Name.of("test"),
+            Name.of("test"),
+            Pesel.of("19393929329"))));
 
         // when
         final var result = service.updateAddress(new UpdateAddress(UUID.randomUUID(),

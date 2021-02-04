@@ -4,15 +4,15 @@ import java.util.Objects;
 
 final class Person extends Customer {
 
-    private Name firstName;
-    private Name lastName;
-    private Pesel pesel;
+    private final Name firstName;
+    private final Name lastName;
+    private final Pesel pesel;
 
-    void initPerson(RegisterPerson registerPerson) {
-        initCustomer(PERSON, registerPerson.getEmail());
-        this.firstName = registerPerson.getFirstName();
-        this.lastName = registerPerson.getLastName();
-        this.pesel = registerPerson.getPesel();
+    Person(Email email, Name firstName, Name lastName, Pesel pesel) {
+        super(PERSON, email);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.pesel = pesel;
     }
 
     public Name getFirstName() {

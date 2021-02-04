@@ -4,24 +4,19 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * The customer, can be person or company
- */
-public class Customer {
+abstract class Customer {
 
-    // customer types
     public static final int COMPANY = 1;
     public static final int PERSON = 2;
 
-    private UUID id;
-    private int type;
-    private LocalDateTime createTime;
-    private Email email;
+    private final UUID id;
+    private final int type;
+    private final LocalDateTime createTime;
+    private final Email email;
     private CustomerVerification customerVerification;
-
     private Address address;
 
-    void initCustomer(int type, Email email) {
+    Customer(int type, Email email) {
         this.id = UUID.randomUUID();
         this.type = type;
         this.createTime = LocalDateTime.now();

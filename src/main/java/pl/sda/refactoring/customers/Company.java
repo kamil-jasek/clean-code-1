@@ -4,22 +4,21 @@ import java.util.Objects;
 
 final class Company extends Customer {
 
-    // company data
-    private Name companyName;
-    private Vat companyVat;
+    private final Name name;
+    private final Vat vat;
 
-    void initCompany(RegisterCompany registerCompany) {
-        initCustomer(COMPANY, registerCompany.getEmail());
-        this.companyName = registerCompany.getName();
-        this.companyVat = registerCompany.getVat();
+    Company(Email email, Name name, Vat vat) {
+        super(COMPANY, email);
+        this.name = name;
+        this.vat = vat;
     }
 
-    public Name getCompanyName() {
-        return companyName;
+    public Name getName() {
+        return name;
     }
 
-    public Vat getCompanyVat() {
-        return companyVat;
+    public Vat getVat() {
+        return vat;
     }
 
     @Override
@@ -34,11 +33,11 @@ final class Company extends Customer {
             return false;
         }
         Company company = (Company) o;
-        return companyName.equals(company.companyName) && companyVat.equals(company.companyVat);
+        return name.equals(company.name) && vat.equals(company.vat);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), companyName, companyVat);
+        return Objects.hash(super.hashCode(), name, vat);
     }
 }
