@@ -61,8 +61,8 @@ class CustomerServiceTest {
         assertNotNull(customer.getId());
         assertNotNull(customer.getCreateTime());
         assertTrue(customer.isVerified());
-        assertNotNull(customer.getVerificationTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifier());
+        assertNotNull(customer.getCustomerVerification().getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getCustomerVerification().getVerifier());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
         assertEquals(Name.of("Jan"), customer.getFirstName());
         assertEquals(Name.of("Kowalski"), customer.getLastName());
@@ -100,9 +100,8 @@ class CustomerServiceTest {
         assertNotNull(customer.getId());
         assertNotNull(customer.getCreateTime());
         assertTrue(customer.isVerified());
-        assertTrue(customer.isVerified());
-        assertNotNull(customer.getVerificationTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifier());
+        assertNotNull(customer.getCustomerVerification().getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getCustomerVerification().getVerifier());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
         assertEquals(Name.of("Test S.A."), customer.getCompanyName());
         assertEquals(Vat.of("8384783833"), customer.getCompanyVat());

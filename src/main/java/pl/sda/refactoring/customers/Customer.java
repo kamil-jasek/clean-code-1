@@ -13,14 +13,11 @@ public class Customer {
     public static final int COMPANY = 1;
     public static final int PERSON = 2;
 
-
     private UUID id;
     private int type;
     private LocalDateTime createTime;
     private Email email;
-    private LocalDateTime verificationTime;
-    private boolean verified;
-    private CustomerVerifier verifier;
+    private CustomerVerification customerVerification;
 
     // company data
     private Name companyName;
@@ -113,22 +110,16 @@ public class Customer {
         this.email = email;
     }
 
-    public LocalDateTime getVerificationTime() {
-        return verificationTime;
-    }
-
     public boolean isVerified() {
-        return verified;
+        return customerVerification != null;
     }
 
-    public CustomerVerifier getVerifier() {
-        return verifier;
+    public CustomerVerification getCustomerVerification() {
+        return customerVerification;
     }
 
     void markVerified() {
-        this.verified = true;
-        this.verificationTime = LocalDateTime.now();
-        this.verifier = CustomerVerifier.AUTO_EMAIL;
+        this.customerVerification = new CustomerVerification(LocalDateTime.now(), CustomerVerifier.AUTO_EMAIL);
     }
 
     @Override
@@ -140,9 +131,13 @@ public class Customer {
             return false;
         }
         Customer customer = (Customer) o;
-        return type == customer.type && verified == customer.verified && Objects.equals(id, customer.id)
+        return type == customer.type && customerVerification.isVerified() == customer.customerVerification.isVerified()
+            && Objects.equals(id, customer.id)
             && Objects.equals(createTime, customer.createTime) && Objects.equals(email, customer.email)
-            && Objects.equals(verificationTime, customer.verificationTime) && verifier == customer.verifier && Objects
+            && Objects.equals(customerVerification.getVerificationTime(),
+            customer.customerVerification.getVerificationTime()) && customerVerification.getVerifier()
+            == customer.customerVerification
+            .getVerifier() && Objects
             .equals(companyName, customer.companyName) && Objects.equals(companyVat, customer.companyVat) && Objects
             .equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects
             .equals(pesel, customer.pesel) && Objects.equals(address.getStreet(),
@@ -156,7 +151,8 @@ public class Customer {
     @Override
     public int hashCode() {
         return Objects
-            .hash(id, type, createTime, email, verificationTime, verified, verifier, companyName, companyVat, firstName,
+            .hash(id, type, createTime, email, customerVerification.getVerificationTime(),
+                customerVerification.isVerified(), customerVerification.getVerifier(), companyName, companyVat, firstName,
                 lastName, pesel, address.getStreet(),
                 address.getCity(), address.getZipCode(), address.getCountryCode());
     }
