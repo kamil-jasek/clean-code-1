@@ -24,7 +24,7 @@ public class Customer {
 
     // company data
     private Name compName;
-    private String compVat;
+    private Vat compVat;
 
     // person data
     private Name fName;
@@ -69,11 +69,11 @@ public class Customer {
         this.compName = compName;
     }
 
-    public String getCompVat() {
+    public Vat getCompVat() {
         return compVat;
     }
 
-    public void setCompVat(String compVat) {
+    public void setCompVat(Vat compVat) {
         this.compVat = compVat;
     }
 

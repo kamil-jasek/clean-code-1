@@ -51,69 +51,50 @@ public class CustomerService {
         return dao.emailExists(email) || dao.peselExists(pesel);
     }
 
-    public boolean registerCompany(Email email, Name name, String vat, boolean verified) {
-        var result = false;
+    public boolean registerCompany(RegisterCompany registerCompany) {
+        if (companyExists(registerCompany.getEmail(), registerCompany.getVat())) {
+            return false;
+        }
+
         var customer = new Customer();
         customer.setType(Customer.COMPANY);
-        if (!companyExists(email, vat) && isCompanyDataNotNull(email, name, vat)) {
-            customer.setEmail(email);
-            customer.setCompName(name);
-            if (matchesVat(vat)) {
-                customer.setCompVat(vat);
-            }
-            if (isValidCompany(customer)) {
-                result = true;
-            }
-        }
+        customer.setId(UUID.randomUUID());
+        customer.setEmail(registerCompany.getEmail());
+        customer.setCompName(registerCompany.getName());
+        customer.setCompVat(registerCompany.getVat());
+        customer.setCtime(LocalDateTime.now());
 
-        if (result) {
-            customer.setCtime(LocalDateTime.now());
-            String subj;
-            String body;
-            if (verified) {
-                customer.markVerified();
-                subj = "Your are now verified customer!";
-                body = "<b>Your company: " + name + " is ready to make na order.</b><br/>" +
-                    "Thank you for registering in our service. Now you are verified customer!";
-            } else {
-                customer.setVerf(false);
-                subj = "Waiting for verification";
-                body = "<b>Hello</b><br/>" +
-                    "We registered your company: " + name + " in our service. Please wait for verification!";
-            }
-            customer.setId(UUID.randomUUID());
-            dao.save(customer);
-            mailSender.send(email, subj, body);
+        String subj;
+        String body;
+        if (registerCompany.isVerified()) {
+            customer.markVerified();
+            subj = "Your are now verified customer!";
+            body = "<b>Your company: " + registerCompany.getName() + " is ready to make na order.</b><br/>" +
+                "Thank you for registering in our service. Now you are verified customer!";
+        } else {
+            customer.setVerf(false);
+            subj = "Waiting for verification";
+            body = "<b>Hello</b><br/>" +
+                "We registered your company: " + registerCompany.getName() + " in our service. Please wait for verification!";
         }
+        dao.save(customer);
+        mailSender.send(registerCompany.getEmail(), subj, body);
 
-        return result;
+        return true;
     }
 
     private boolean isValidCompany(Customer customer) {
         return customer.getEmail() != null && customer.getCompName() != null && customer.getCompVat() != null;
     }
 
-    private boolean matchesVat(String vat) {
-        return vat.matches("\\d{10}");
-    }
-
-    private boolean isCompanyDataNotNull(Email email, Name name, String vat) {
+    private boolean isCompanyDataNotNull(Email email, Name name, Vat vat) {
         return email != null && name != null && vat != null;
     }
 
-    private boolean companyExists(Email email, String vat) {
+    private boolean companyExists(Email email, Vat vat) {
         return dao.emailExists(email) || dao.vatExists(vat);
     }
 
-    /**
-     * Set new address for customer
-     * @param cid
-     * @param str
-     * @param zipcode
-     * @param city
-     * @param country
-     * @return
-     */
     public boolean updateAddress(UUID cid, String str, String zipcode, String city, String country) {
         var result = false;
         var customer = dao.findById(cid);
@@ -129,11 +110,4 @@ public class CustomerService {
         return result;
     }
 
-    private boolean isValidPerson(Customer customer) {
-        return customer.getEmail() != null && customer.getfName() != null && customer.getlName() != null && customer.getPesel() != null;
-    }
-
-    private boolean isValid(boolean flag) {
-        return flag == true;
-    }
 }

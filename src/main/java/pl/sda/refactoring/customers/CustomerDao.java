@@ -17,7 +17,7 @@ public class CustomerDao {
         throw new UnsupportedOperationException();
     }
 
-    public boolean vatExists(String vat) {
+    public boolean vatExists(Vat vat) {
         throw new UnsupportedOperationException();
     }
 

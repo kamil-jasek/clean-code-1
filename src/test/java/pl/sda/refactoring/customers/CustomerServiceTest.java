@@ -65,18 +65,10 @@ class CustomerServiceTest {
     }
 
     @Test
-    void shouldNotRegisterIfCompanyDataIsNull() {
-        // when
-        final var result = service.registerCompany(null, null, null, false);
-
-        // then
-        assertFalse(result);
-    }
-
-    @Test
     void shouldRegisterNotVerifiedCompany() {
         // when
-        final var result = service.registerCompany(Email.of("em@test.com"), Name.of("Test S.A."), "8384783833", false);
+        final var result = service.registerCompany(
+            new RegisterCompany(Email.of("em@test.com"), Name.of("Test S.A."), Vat.of("8384783833"), false));
 
         // then
         final var customer = verifyCustomerSaved();
@@ -87,13 +79,14 @@ class CustomerServiceTest {
         assertFalse(customer.isVerf());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
         assertEquals(Name.of("Test S.A."), customer.getCompName());
-        assertEquals("8384783833", customer.getCompVat());
+        assertEquals(Vat.of("8384783833"), customer.getCompVat());
     }
 
     @Test
     void shouldRegisterVerifiedCompany() {
         // when
-        final var result = service.registerCompany(Email.of("em@test.com"), Name.of("Test S.A."), "8384783833", true);
+        final var result = service.registerCompany(
+            new RegisterCompany(Email.of("em@test.com"), Name.of("Test S.A."), Vat.of("8384783833"), true));
 
         // then
         final var customer = verifyCustomerSaved();
@@ -107,7 +100,7 @@ class CustomerServiceTest {
         assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifBy());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
         assertEquals(Name.of("Test S.A."), customer.getCompName());
-        assertEquals("8384783833", customer.getCompVat());
+        assertEquals(Vat.of("8384783833"), customer.getCompVat());
     }
 
     private Customer verifyCustomerSaved() {
