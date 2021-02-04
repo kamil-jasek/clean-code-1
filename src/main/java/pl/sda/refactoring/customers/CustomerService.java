@@ -87,34 +87,23 @@ public class CustomerService {
         return dao.emailExists(email) || dao.peselExists(pesel);
     }
 
-    /**
-     * Register new company type customer
-     * @param email
-     * @param name
-     * @param vat
-     * @param verified
-     * @return
-     */
     public boolean registerCompany(String email, String name, String vat, boolean verified) {
         var result = false;
         var customer = new Customer();
         customer.setType(Customer.COMPANY);
-        var isInDb = dao.emailExists(email) || dao.vatExists(vat);
-        if (!isInDb) {
-            if (email != null && name != null && vat != null) {
-                var emailP = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
-                var emailM = emailP.matcher(email);
-                if (emailM.matches()) {
+        if (!companyExists(email, vat)) {
+            if (isCompanyDataNotNull(email, name, vat)) {
+                if (matchesEmail(email)) {
                     customer.setEmail(email);
                 }
-                if (name.length() > 0 && matchesName(name)) {
+                if (matchesName(name)) {
                     customer.setCompName(name);
                 }
-                if (vat.length() == 10 && vat.matches("/\\d{10}/")) {
+                if (matchesVat(vat)) {
                     customer.setCompVat(vat);
                 }
 
-                if (isValidPerson(customer)) {
+                if (isValidCompany(customer)) {
                     result = true;
                 }
             }
@@ -144,6 +133,22 @@ public class CustomerService {
         }
 
         return result;
+    }
+
+    private boolean isValidCompany(Customer customer) {
+        return customer.getEmail() != null && customer.getCompName() != null && customer.getCompVat() != null;
+    }
+
+    private boolean matchesVat(String vat) {
+        return vat.matches("\\d{10}");
+    }
+
+    private boolean isCompanyDataNotNull(String email, String name, String vat) {
+        return email != null && name != null && vat != null;
+    }
+
+    private boolean companyExists(String email, String vat) {
+        return dao.emailExists(email) || dao.vatExists(vat);
     }
 
     /**
