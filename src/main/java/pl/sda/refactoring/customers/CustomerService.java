@@ -23,10 +23,10 @@ public class CustomerService {
         var customer = new Customer();
         customer.setId(UUID.randomUUID());
         customer.setType(Customer.PERSON);
-        customer.setCtime(LocalDateTime.now());
+        customer.setCreateTime(LocalDateTime.now());
         customer.setEmail(registerPerson.getEmail());
-        customer.setfName(registerPerson.getFirstName());
-        customer.setlName(registerPerson.getLastName());
+        customer.setFirstName(registerPerson.getFirstName());
+        customer.setLastName(registerPerson.getLastName());
         customer.setPesel(registerPerson.getPesel());
 
         String subj;
@@ -37,7 +37,6 @@ public class CustomerService {
             body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
                 "Thank you for registering in our service. Now you are verified customer!";
         } else {
-            customer.setVerf(false);
             subj = "Waiting for verification";
             body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
                 "We registered you in our service. Please wait for verification!";
@@ -60,9 +59,9 @@ public class CustomerService {
         customer.setType(Customer.COMPANY);
         customer.setId(UUID.randomUUID());
         customer.setEmail(registerCompany.getEmail());
-        customer.setCompName(registerCompany.getName());
-        customer.setCompVat(registerCompany.getVat());
-        customer.setCtime(LocalDateTime.now());
+        customer.setCompanyName(registerCompany.getName());
+        customer.setCompanyVat(registerCompany.getVat());
+        customer.setCreateTime(LocalDateTime.now());
 
         String subj;
         String body;
@@ -72,7 +71,6 @@ public class CustomerService {
             body = "<b>Your company: " + registerCompany.getName() + " is ready to make na order.</b><br/>" +
                 "Thank you for registering in our service. Now you are verified customer!";
         } else {
-            customer.setVerf(false);
             subj = "Waiting for verification";
             body = "<b>Hello</b><br/>" +
                 "We registered your company: " + registerCompany.getName() + " in our service. Please wait for verification!";
@@ -83,31 +81,23 @@ public class CustomerService {
         return true;
     }
 
-    private boolean isValidCompany(Customer customer) {
-        return customer.getEmail() != null && customer.getCompName() != null && customer.getCompVat() != null;
-    }
-
-    private boolean isCompanyDataNotNull(Email email, Name name, Vat vat) {
-        return email != null && name != null && vat != null;
-    }
-
     private boolean companyExists(Email email, Vat vat) {
         return dao.emailExists(email) || dao.vatExists(vat);
     }
 
-    public boolean updateAddress(UUID cid, String str, String zipcode, String city, String country) {
-        var result = false;
-        var customer = dao.findById(cid);
-        if (customer.isPresent()) {
-           var object = customer.get();
-           object.setAddrStreet(str);
-           object.setAddrZipCode(zipcode);
-           object.setAddrCity(city);
-           object.setAddrCountryCode(country);
-           dao.save(object);
-           result = true;
-        }
-        return result;
+    public boolean updateAddress(UpdateAddress updateAddress) {
+        return dao.findById(updateAddress.getCustomerId())
+            .map(customer -> updateCustomerAddress(updateAddress, customer))
+            .orElse(false);
+    }
+
+    private boolean updateCustomerAddress(UpdateAddress updateAddress, Customer customer) {
+        customer.updateAddress(new Address(updateAddress.getStreet(),
+            updateAddress.getCity(),
+            updateAddress.getZipCode(),
+            updateAddress.getCountryCode()));
+        dao.save(customer);
+        return true;
     }
 
 }

@@ -4,11 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.BDDMockito;
 
 class CustomerServiceTest {
 
@@ -31,12 +36,12 @@ class CustomerServiceTest {
         assertTrue(result);
         assertEquals(Customer.PERSON, customer.getType());
         assertNotNull(customer.getId());
-        assertFalse(customer.isVerf());
+        assertFalse(customer.isVerified());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Jan"), customer.getfName());
-        assertEquals(Name.of("Kowalski"), customer.getlName());
+        assertEquals(Name.of("Jan"), customer.getFirstName());
+        assertEquals(Name.of("Kowalski"), customer.getLastName());
         assertEquals(Pesel.of("92893202093"), customer.getPesel());
-        assertNotNull(customer.getCtime());
+        assertNotNull(customer.getCreateTime());
     }
 
     @Test
@@ -54,13 +59,13 @@ class CustomerServiceTest {
         assertTrue(result);
         assertEquals(Customer.PERSON, customer.getType());
         assertNotNull(customer.getId());
-        assertNotNull(customer.getCtime());
-        assertTrue(customer.isVerf());
-        assertNotNull(customer.getVerfTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifBy());
+        assertNotNull(customer.getCreateTime());
+        assertTrue(customer.isVerified());
+        assertNotNull(customer.getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifier());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Jan"), customer.getfName());
-        assertEquals(Name.of("Kowalski"), customer.getlName());
+        assertEquals(Name.of("Jan"), customer.getFirstName());
+        assertEquals(Name.of("Kowalski"), customer.getLastName());
         assertEquals(Pesel.of("92893202093"), customer.getPesel());
     }
 
@@ -75,11 +80,11 @@ class CustomerServiceTest {
         assertTrue(result);
         assertEquals(Customer.COMPANY, customer.getType());
         assertNotNull(customer.getId());
-        assertNotNull(customer.getCtime());
-        assertFalse(customer.isVerf());
+        assertNotNull(customer.getCreateTime());
+        assertFalse(customer.isVerified());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Test S.A."), customer.getCompName());
-        assertEquals(Vat.of("8384783833"), customer.getCompVat());
+        assertEquals(Name.of("Test S.A."), customer.getCompanyName());
+        assertEquals(Vat.of("8384783833"), customer.getCompanyVat());
     }
 
     @Test
@@ -93,14 +98,48 @@ class CustomerServiceTest {
         assertTrue(result);
         assertEquals(Customer.COMPANY, customer.getType());
         assertNotNull(customer.getId());
-        assertNotNull(customer.getCtime());
-        assertTrue(customer.isVerf());
-        assertTrue(customer.isVerf());
-        assertNotNull(customer.getVerfTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifBy());
+        assertNotNull(customer.getCreateTime());
+        assertTrue(customer.isVerified());
+        assertTrue(customer.isVerified());
+        assertNotNull(customer.getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifier());
         assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Test S.A."), customer.getCompName());
-        assertEquals(Vat.of("8384783833"), customer.getCompVat());
+        assertEquals(Name.of("Test S.A."), customer.getCompanyName());
+        assertEquals(Vat.of("8384783833"), customer.getCompanyVat());
+    }
+
+    @Test
+    void shouldNotUpdateAddressIfCustomerNotExists() {
+        // given
+        given(dao.findById(any())).willReturn(Optional.empty());
+
+        // when
+        final var result = service.updateAddress(new UpdateAddress(UUID.randomUUID(),
+            "str",
+            "02-303",
+            "Wawa",
+            "PL"));
+
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldUpdateAddress() {
+        // given
+        given(dao.findById(any())).willReturn(Optional.of(new Customer()));
+
+        // when
+        final var result = service.updateAddress(new UpdateAddress(UUID.randomUUID(),
+            "str",
+            "02-303",
+            "Wawa",
+            "PL"));
+
+        // then
+        final var customer = verifyCustomerSaved();
+        assertTrue(result);
+        assertEquals(new Address("str", "Wawa", "02-303", "PL"), customer.getAddress());
     }
 
     private Customer verifyCustomerSaved() {
