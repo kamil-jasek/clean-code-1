@@ -22,29 +22,28 @@ public class CustomerService {
     /**
      * Register new person type customer
      * @param email
-     * @param fName
-     * @param lName
+     * @param firstName
+     * @param lastName
      * @param pesel
      * @param verified
      * @return
      */
-    public boolean registerPerson(String email, String fName, String lName, String pesel, boolean verified) {
+    public boolean registerPerson(String email, String firstName, String lastName, String pesel, boolean verified) {
         var result = false;
         var customer = new Customer();
         customer.setType(Customer.PERSON);
-        var isInDb = dao.emailExists(email) || dao.peselExists(pesel);
-        if (!isInDb) {
-            if (email != null && fName != null && lName != null && pesel != null) {
+        if (!personExists(email, pesel)) {
+            if (email != null && firstName != null && lastName != null && pesel != null) {
                 var emailP = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
                 var emailM = emailP.matcher(email);
                 if (emailM.matches()) {
                     customer.setEmail(email);
                 }
-                if (fName.length() > 0 && fName.matches("[\\p{L}\\s\\.]{2,100}")) {
-                    customer.setfName(fName);
+                if (firstName.length() > 0 && firstName.matches("[\\p{L}\\s\\.]{2,100}")) {
+                    customer.setfName(firstName);
                 }
-                if (lName.length() > 0 && lName.matches("[\\p{L}\\s\\.]{2,100}")) {
-                    customer.setlName(lName);
+                if (lastName.length() > 0 && lastName.matches("[\\p{L}\\s\\.]{2,100}")) {
+                    customer.setlName(lastName);
                 }
                 if (pesel.length() == 11 && pesel.matches("/\\d{11}/")) {
                     customer.setPesel(pesel);
@@ -65,12 +64,12 @@ public class CustomerService {
                 customer.setVerfTime(LocalDateTime.now());
                 customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
                 subj = "Your are now verified customer!";
-                body = "<b>Hi " + fName + "</b><br/>" +
+                body = "<b>Hi " + firstName + "</b><br/>" +
                     "Thank you for registering in our service. Now you are verified customer!";
             } else {
                 customer.setVerf(false);
                 subj = "Waiting for verification";
-                body = "<b>Hi " + fName + "</b><br/>" +
+                body = "<b>Hi " + firstName + "</b><br/>" +
                     "We registered you in our service. Please wait for verification!";
             }
             genCustomerId(customer);
@@ -80,6 +79,10 @@ public class CustomerService {
         }
 
         return result;
+    }
+
+    private boolean personExists(String email, String pesel) {
+        return dao.emailExists(email) || dao.peselExists(pesel);
     }
 
     /**
