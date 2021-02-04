@@ -9,7 +9,7 @@ public class CustomerDao {
         throw new UnsupportedOperationException();
     }
 
-    public boolean emailExists(String email) {
+    public boolean emailExists(Email email) {
         throw new UnsupportedOperationException();
     }
 

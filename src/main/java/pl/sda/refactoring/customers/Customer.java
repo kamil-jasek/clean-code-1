@@ -16,7 +16,7 @@ public class Customer {
     private UUID id;
     private int type;
     private LocalDateTime ctime;
-    private String email;
+    private Email email;
     private LocalDateTime verfTime;
     private boolean verf;
     private CustomerVerifier verifBy;
@@ -132,11 +132,11 @@ public class Customer {
         this.addrCountryCode = addrCountryCode;
     }
 
-    public String getEmail() {
+    public Email getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(Email email) {
         this.email = email;
     }
 

@@ -19,8 +19,8 @@ public class CustomerService {
         this.mailSender = requireNonNull(mailSender);
     }
 
-    public boolean registerPerson(String email, String firstName, String lastName, String pesel, boolean verified) {
-        if (personExists(email, pesel) || !isPersonDataNotNull(email, firstName, lastName, pesel)) {
+    public boolean registerPerson(RegisterPerson registerPerson) {
+        if (personExists(registerPerson.getEmail(), registerPerson.getPesel())) {
             return false;
         }
 
@@ -28,17 +28,17 @@ public class CustomerService {
         var customer = new Customer();
         customer.setType(Customer.PERSON);
 
-        if (matchesEmail(email)) {
-            customer.setEmail(email);
+        if (matchesEmail(registerPerson.getEmail())) {
+            customer.setEmail(registerPerson.getEmail());
         }
-        if (matchesName(firstName)) {
-            customer.setfName(firstName);
+        if (matchesName(registerPerson.getFirstName())) {
+            customer.setfName(registerPerson.getFirstName());
         }
-        if (matchesName(lastName)) {
-            customer.setlName(lastName);
+        if (matchesName(registerPerson.getLastName())) {
+            customer.setlName(registerPerson.getLastName());
         }
-        if (matchesPesel(pesel)) {
-            customer.setPesel(pesel);
+        if (matchesPesel(registerPerson.getPesel())) {
+            customer.setPesel(registerPerson.getPesel());
         }
         if (isValidPerson(customer)) {
             result = true;
@@ -48,20 +48,20 @@ public class CustomerService {
             customer.setCtime(LocalDateTime.now());
             String subj;
             String body;
-            if (verified) {
+            if (registerPerson.isVerified()) {
                 customer.markVerified();
                 subj = "Your are now verified customer!";
-                body = "<b>Hi " + firstName + "</b><br/>" +
+                body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
                     "Thank you for registering in our service. Now you are verified customer!";
             } else {
                 customer.setVerf(false);
                 subj = "Waiting for verification";
-                body = "<b>Hi " + firstName + "</b><br/>" +
+                body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
                     "We registered you in our service. Please wait for verification!";
             }
             customer.setId(UUID.randomUUID());
             dao.save(customer);
-            mailSender.send(email, subj, body);
+            mailSender.send(registerPerson.getEmail(), subj, body);
         }
 
         return result;
@@ -71,52 +71,43 @@ public class CustomerService {
         return pesel.matches("\\d{11}");
     }
 
-    private boolean matchesEmail(String email) {
-        return EMAIL_PATTERN.matcher(email).matches();
+    private boolean matchesEmail(Email email) {
+        return EMAIL_PATTERN.matcher(email.getValue()).matches();
     }
 
     private boolean matchesName(String name) {
         return name.matches("[\\p{L}\\s\\.]{2,100}");
     }
 
-    private boolean isPersonDataNotNull(String email, String firstName, String lastName, String pesel) {
-        return email != null && firstName != null && lastName != null && pesel != null;
-    }
-
-    private boolean personExists(String email, String pesel) {
+    private boolean personExists(Email email, String pesel) {
         return dao.emailExists(email) || dao.peselExists(pesel);
     }
 
-    public boolean registerCompany(String email, String name, String vat, boolean verified) {
+    public boolean registerCompany(Email email, String name, String vat, boolean verified) {
         var result = false;
         var customer = new Customer();
         customer.setType(Customer.COMPANY);
-        if (!companyExists(email, vat)) {
-            if (isCompanyDataNotNull(email, name, vat)) {
-                if (matchesEmail(email)) {
-                    customer.setEmail(email);
-                }
-                if (matchesName(name)) {
-                    customer.setCompName(name);
-                }
-                if (matchesVat(vat)) {
-                    customer.setCompVat(vat);
-                }
-
-                if (isValidCompany(customer)) {
-                    result = true;
-                }
+        if (!companyExists(email, vat) && isCompanyDataNotNull(email, name, vat)) {
+            if (matchesEmail(email)) {
+                customer.setEmail(email);
+            }
+            if (matchesName(name)) {
+                customer.setCompName(name);
+            }
+            if (matchesVat(vat)) {
+                customer.setCompVat(vat);
+            }
+            if (isValidCompany(customer)) {
+                result = true;
             }
         }
 
-        if (result == true) {
+        if (result) {
             customer.setCtime(LocalDateTime.now());
             String subj;
             String body;
             if (verified) {
-                customer.setVerf(verified);
-                customer.setVerfTime(LocalDateTime.now());
-                customer.setVerifBy(CustomerVerifier.AUTO_EMAIL);
+                customer.markVerified();
                 subj = "Your are now verified customer!";
                 body = "<b>Your company: " + name + " is ready to make na order.</b><br/>" +
                     "Thank you for registering in our service. Now you are verified customer!";
@@ -128,7 +119,6 @@ public class CustomerService {
             }
             customer.setId(UUID.randomUUID());
             dao.save(customer);
-            // send email to customer
             mailSender.send(email, subj, body);
         }
 
@@ -143,11 +133,11 @@ public class CustomerService {
         return vat.matches("\\d{10}");
     }
 
-    private boolean isCompanyDataNotNull(String email, String name, String vat) {
+    private boolean isCompanyDataNotNull(Email email, String name, String vat) {
         return email != null && name != null && vat != null;
     }
 
-    private boolean companyExists(String email, String vat) {
+    private boolean companyExists(Email email, String vat) {
         return dao.emailExists(email) || dao.vatExists(vat);
     }
 

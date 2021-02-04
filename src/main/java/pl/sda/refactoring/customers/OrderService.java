@@ -167,7 +167,7 @@ public class OrderService {
         order.setId(UUID.randomUUID());
     }
 
-    private boolean sendEmail(String address, String subj, String msg) {
+    private boolean sendEmail(Email address, String subj, String msg) {
         Properties prop = new Properties();
         prop.put("mail.smtp.auth", true);
         prop.put("mail.smtp.starttls.enable", "true");
@@ -186,7 +186,7 @@ public class OrderService {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("no-reply@company.com"));
             message.setRecipients(
-                Message.RecipientType.TO, InternetAddress.parse(address));
+                Message.RecipientType.TO, InternetAddress.parse(address.getValue()));
             message.setSubject(subj);
 
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
