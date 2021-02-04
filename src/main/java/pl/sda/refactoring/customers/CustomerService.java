@@ -20,26 +20,28 @@ public class CustomerService {
     }
 
     public boolean registerPerson(String email, String firstName, String lastName, String pesel, boolean verified) {
+        if (personExists(email, pesel) || !isPersonDataNotNull(email, firstName, lastName, pesel)) {
+            return false;
+        }
+
         var result = false;
         var customer = new Customer();
         customer.setType(Customer.PERSON);
-        if (!personExists(email, pesel) && isPersonDataNotNull(email, firstName, lastName, pesel)) {
-            if (matchesEmail(email)) {
-                customer.setEmail(email);
-            }
-            if (matchesName(firstName)) {
-                customer.setfName(firstName);
-            }
-            if (matchesName(lastName)) {
-                customer.setlName(lastName);
-            }
-            if (matchesPesel(pesel)) {
-                customer.setPesel(pesel);
-            }
 
-            if (isValidPerson(customer)) {
-                result = true;
-            }
+        if (matchesEmail(email)) {
+            customer.setEmail(email);
+        }
+        if (matchesName(firstName)) {
+            customer.setfName(firstName);
+        }
+        if (matchesName(lastName)) {
+            customer.setlName(lastName);
+        }
+        if (matchesPesel(pesel)) {
+            customer.setPesel(pesel);
+        }
+        if (isValidPerson(customer)) {
+            result = true;
         }
 
         if (result) {

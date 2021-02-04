@@ -43,6 +43,26 @@ class CustomerServiceTest {
         assertNotNull(customer.getCtime());
     }
 
+    @Test
+    void shouldRegisterVerifiedPerson() {
+        // when
+        final var result = service.registerPerson("em@test.com", "Jan", "Kowalski", "92893202093", true);
+
+        // then
+        final var customer = verifyCustomerSaved();
+        assertTrue(result);
+        assertEquals(Customer.PERSON, customer.getType());
+        assertNotNull(customer.getId());
+        assertTrue(customer.isVerf());
+        assertNotNull(customer.getVerfTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerifBy());
+        assertEquals("em@test.com", customer.getEmail());
+        assertEquals("Jan", customer.getfName());
+        assertEquals("Kowalski", customer.getlName());
+        assertEquals("92893202093", customer.getPesel());
+        assertNotNull(customer.getCtime());
+    }
+
     private Customer verifyCustomerSaved() {
         final var captor = ArgumentCaptor.forClass(Customer.class);
         verify(dao).save(captor.capture());
