@@ -5,15 +5,12 @@ import static java.util.Objects.requireNonNull;
 public class CustomerService {
 
     private final CustomerDao dao;
-    private final MailSender mailSender;
-    private final ExternalSystem externalSystem;
+    private final EventPublisher eventPublisher;
     private final CustomerMapper mapper;
 
-    public CustomerService(CustomerDao dao, MailSender mailSender,
-        ExternalSystem externalSystem, CustomerMapper mapper) {
+    public CustomerService(CustomerDao dao, EventPublisher eventPublisher, CustomerMapper mapper) {
         this.dao = requireNonNull(dao);
-        this.mailSender = requireNonNull(mailSender);
-        this.externalSystem = requireNonNull(externalSystem);
+        this.eventPublisher = requireNonNull(eventPublisher);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -22,24 +19,12 @@ public class CustomerService {
             throw new CustomerExistsException("Email: " + registerPerson.getEmail() +
                 ", or pesel: " + registerPerson.getPesel() + " already exists");
         }
-
         final var person = mapper.map(registerPerson);
-
-        String subj;
-        String body;
         if (registerPerson.isVerified()) {
             person.markVerified();
-            subj = "Your are now verified customer!";
-            body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
-                "Thank you for registering in our service. Now you are verified customer!";
-        } else {
-            subj = "Waiting for verification";
-            body = "<b>Hi " + registerPerson.getFirstName() + "</b><br/>" +
-                "We registered you in our service. Please wait for verification!";
         }
         dao.save(person);
-        mailSender.send(registerPerson.getEmail(), subj, body);
-        externalSystem.notifyAboutRegisteredCustomer(person);
+        eventPublisher.publish(mapper.mapToRegisteredPersonEvent(person));
         return mapper.mapToRegisteredPerson(person);
     }
 
@@ -52,24 +37,12 @@ public class CustomerService {
             throw new CustomerExistsException("Email: " + registerCompany.getEmail() +
                 " or VAT: " + registerCompany.getVat() + " already exists");
         }
-
         final var company = mapper.map(registerCompany);
-
-        String subj;
-        String body;
         if (registerCompany.isVerified()) {
             company.markVerified();
-            subj = "Your are now verified customer!";
-            body = "<b>Your company: " + registerCompany.getName() + " is ready to make na order.</b><br/>" +
-                "Thank you for registering in our service. Now you are verified customer!";
-        } else {
-            subj = "Waiting for verification";
-            body = "<b>Hello</b><br/>" +
-                "We registered your company: " + registerCompany.getName() + " in our service. Please wait for verification!";
         }
         dao.save(company);
-        mailSender.send(registerCompany.getEmail(), subj, body);
-        externalSystem.notifyAboutRegisteredCustomer(company);
+        eventPublisher.publish(mapper.mapToRegisteredCompanyEvent(company));
         return mapper.mapToRegisteredCompany(company);
     }
 

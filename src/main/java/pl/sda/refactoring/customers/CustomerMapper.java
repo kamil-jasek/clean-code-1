@@ -48,4 +48,23 @@ final class CustomerMapper {
             updateAddress.getCity(),
             updateAddress.getCountryCode());
     }
+
+    RegisteredPersonEvent mapToRegisteredPersonEvent(Person person) {
+        return new RegisteredPersonEvent(person.getId(),
+            person.getEmail().getValue(),
+            person.getCreateTime(),
+            person.getFirstName().getValue(),
+            person.getLastName().getValue(),
+            person.getPesel().getValue(),
+            person.getCustomerVerification());
+    }
+
+    RegisteredCompanyEvent mapToRegisteredCompanyEvent(Company company) {
+        return new RegisteredCompanyEvent(company.getId(),
+            company.getEmail().getValue(),
+            company.getCreateTime(),
+            company.getName().getValue(),
+            company.getVat().getValue(),
+            company.getCustomerVerification());
+    }
 }

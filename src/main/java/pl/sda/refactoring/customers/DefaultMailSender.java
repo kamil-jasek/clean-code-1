@@ -15,11 +15,11 @@ import javax.mail.internet.MimeMultipart;
 final class DefaultMailSender implements MailSender {
 
     @Override
-    public void send(Email recipient, String subject, String body) {
+    public void send(String recipient, String subject, String body) {
         trySend(recipient, subject, body, createSession(prepareProperties()));
     }
 
-    private void trySend(Email recipient, String subject, String body, Session session) {
+    private void trySend(String recipient, String subject, String body, Session session) {
         try {
             final var message = prepareMimeMessage(recipient, subject, session);
             message.setContent(prepareMultipart(body));
@@ -37,10 +37,10 @@ final class DefaultMailSender implements MailSender {
         return multipart;
     }
 
-    private MimeMessage prepareMimeMessage(Email recipient, String subject, Session session) throws MessagingException {
+    private MimeMessage prepareMimeMessage(String recipient, String subject, Session session) throws MessagingException {
         final var message = new MimeMessage(session);
         message.setFrom(new InternetAddress("no-reply@company.com"));
-        message.setRecipients(RecipientType.TO, InternetAddress.parse(recipient.getValue()));
+        message.setRecipients(RecipientType.TO, InternetAddress.parse(recipient));
         message.setSubject(subject);
         return message;
     }

@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test;
 class CustomerServiceTest {
 
     private final CustomerDao dao = mock(CustomerDao.class);
-    private final MailSender mailSender = mock(MailSender.class);
-    private final ExternalSystem externalSystem = mock(ExternalSystem.class);
-    private final CustomerService service = new CustomerService(dao, mailSender, externalSystem, new CustomerMapper());
+    private final CustomerService service = new CustomerService(dao, new EventPublisher(), new CustomerMapper());
 
     @Test
     void shouldNotRegisterPersonWhenAlreadyExists() {
