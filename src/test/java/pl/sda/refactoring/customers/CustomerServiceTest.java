@@ -17,7 +17,8 @@ class CustomerServiceTest {
 
     private final CustomerDao dao = mock(CustomerDao.class);
     private final MailSender mailSender = mock(MailSender.class);
-    private final CustomerService service = new CustomerService(dao, mailSender, new CustomerMapper());
+    private final ExternalSystem externalSystem = mock(ExternalSystem.class);
+    private final CustomerService service = new CustomerService(dao, mailSender, externalSystem, new CustomerMapper());
 
     @Test
     void shouldNotRegisterPersonWhenAlreadyExists() {

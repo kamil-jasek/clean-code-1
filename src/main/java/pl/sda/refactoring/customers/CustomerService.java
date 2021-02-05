@@ -6,11 +6,14 @@ public class CustomerService {
 
     private final CustomerDao dao;
     private final MailSender mailSender;
+    private final ExternalSystem externalSystem;
     private final CustomerMapper mapper;
 
-    public CustomerService(CustomerDao dao, MailSender mailSender, CustomerMapper mapper) {
+    public CustomerService(CustomerDao dao, MailSender mailSender,
+        ExternalSystem externalSystem, CustomerMapper mapper) {
         this.dao = requireNonNull(dao);
         this.mailSender = requireNonNull(mailSender);
+        this.externalSystem = requireNonNull(externalSystem);
         this.mapper = requireNonNull(mapper);
     }
 
@@ -36,6 +39,7 @@ public class CustomerService {
         }
         dao.save(person);
         mailSender.send(registerPerson.getEmail(), subj, body);
+        externalSystem.notifyAboutRegisteredCustomer(person);
         return mapper.mapToRegisteredPerson(person);
     }
 
@@ -65,7 +69,7 @@ public class CustomerService {
         }
         dao.save(company);
         mailSender.send(registerCompany.getEmail(), subj, body);
-
+        externalSystem.notifyAboutRegisteredCustomer(company);
         return mapper.mapToRegisteredCompany(company);
     }
 
