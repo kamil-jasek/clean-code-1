@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -19,20 +18,12 @@ import pl.sda.refactoring.customers.events.RegisteredPersonEvent;
 @TestInstance(Lifecycle.PER_CLASS)
 class EventPublisherTest {
 
-    private final TestMailSender mailSender = new TestMailSender();
-    private final TestExternalSystem externalSystem = new TestExternalSystem();
-    private final EventPublisher publisher = new EventPublisher();
-    private final EventPublisherConfig config = new EventPublisherConfig();
-
-    @BeforeAll
-    void initTests() {
-        config.configure(publisher, mailSender, externalSystem);
-    }
+    private final TestEventPublisherConfig config = new TestEventPublisherConfig();
+    private final EventPublisher publisher = config.configured();
 
     @BeforeEach
     void beforeTest() {
-        mailSender.reset();
-        externalSystem.reset();
+        config.resetMocks();
     }
 
     @Test
@@ -49,7 +40,7 @@ class EventPublisherTest {
         ));
 
         // then
-        final var capture = mailSender.getCapture();
+        final var capture = config.mailSender().getCapture();
         assertEquals("em@test.com", capture.getRecipient());
         assertEquals("Your are now verified customer!", capture.getSubject());
         assertEquals("<b>Hi Jan</b><br/>Thank you for registering in our service. Now you are verified customer!",
@@ -69,7 +60,7 @@ class EventPublisherTest {
             null));
 
         // then
-        final var capture = mailSender.getCapture();
+        final var capture = config.mailSender().getCapture();
         assertEquals("em@test.com", capture.getRecipient());
         assertEquals("Waiting for verification", capture.getSubject());
         assertEquals("<b>Hi Jan</b><br/>We registered you in our service. Please wait for verification!",
@@ -88,7 +79,7 @@ class EventPublisherTest {
             new CustomerVerification(LocalDateTime.now(), CustomerVerifier.AUTO_EMAIL)));
 
         // then
-        final var capture = mailSender.getCapture();
+        final var capture = config.mailSender().getCapture();
         assertEquals("em@test.com", capture.getRecipient());
         assertEquals("Your are now verified customer!", capture.getSubject());
         assertEquals("<b>Your company: test is ready to make na order.</b><br/>"
@@ -108,7 +99,7 @@ class EventPublisherTest {
             null));
 
         // then
-        final var capture = mailSender.getCapture();
+        final var capture = config.mailSender().getCapture();
         assertEquals("em@test.com", capture.getRecipient());
         assertEquals("Waiting for verification", capture.getSubject());
         assertEquals("<b>Hello</b><br/>We registered your company: test in our service. Please wait for verification!",
@@ -130,7 +121,9 @@ class EventPublisherTest {
             null));
 
         // then
-        assertEquals(new RegisteredCustomer(customerId, "em@test.com", "test", "93839402033"), externalSystem.getCapture());
+        assertEquals(
+            new RegisteredCustomer(customerId, "em@test.com", "test", "93839402033"),
+            config.externalSystem().getCapture());
     }
 
     @Test
@@ -149,6 +142,8 @@ class EventPublisherTest {
             null));
 
         // then
-        assertEquals(new RegisteredCustomer(customerId, "em@test.com", "Jan Nowak", "8304020340430"), externalSystem.getCapture());
+        assertEquals(
+            new RegisteredCustomer(customerId, "em@test.com", "Jan Nowak", "8304020340430"),
+            config.externalSystem().getCapture());
     }
 }
