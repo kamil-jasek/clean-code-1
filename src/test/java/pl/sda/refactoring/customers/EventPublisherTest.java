@@ -4,16 +4,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import pl.sda.refactoring.application.events.EventPublisher;
 import pl.sda.refactoring.customers.ExternalSystem.RegisteredCustomer;
+import pl.sda.refactoring.customers.dto.CustomerVerification;
+import pl.sda.refactoring.customers.dto.CustomerVerifier;
+import pl.sda.refactoring.customers.events.RegisteredCompanyEvent;
+import pl.sda.refactoring.customers.events.RegisteredPersonEvent;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class EventPublisherTest {
 
-    private final EventPublisherConfig config = new EventPublisherConfig();
     private final TestMailSender mailSender = new TestMailSender();
     private final TestExternalSystem externalSystem = new TestExternalSystem();
-    private final EventPublisher publisher = config.configure(mailSender, externalSystem);
+    private final EventPublisher publisher = new EventPublisher();
+    private final EventPublisherConfig config = new EventPublisherConfig();
+
+    @BeforeAll
+    void initTests() {
+        config.configure(publisher, mailSender, externalSystem);
+    }
 
     @BeforeEach
     void beforeTest() {

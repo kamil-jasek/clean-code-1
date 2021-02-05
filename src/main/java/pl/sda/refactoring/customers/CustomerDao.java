@@ -2,8 +2,11 @@ package pl.sda.refactoring.customers;
 
 import java.util.Optional;
 import java.util.UUID;
+import pl.sda.refactoring.customers.dto.Email;
+import pl.sda.refactoring.customers.dto.Pesel;
+import pl.sda.refactoring.customers.dto.Vat;
 
-public class CustomerDao {
+class CustomerDao {
 
     public void save(Customer customer) {
         throw new UnsupportedOperationException();

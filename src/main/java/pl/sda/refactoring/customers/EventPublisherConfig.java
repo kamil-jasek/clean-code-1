@@ -1,12 +1,13 @@
 package pl.sda.refactoring.customers;
 
+import pl.sda.refactoring.application.events.EventPublisher;
+import pl.sda.refactoring.application.mail.MailSender;
+
 final class EventPublisherConfig {
 
-    EventPublisher configure(MailSender mailSender, ExternalSystem externalSystem) {
-        final var publisher = new EventPublisher();
+    public void configure(EventPublisher publisher, MailSender mailSender, ExternalSystem externalSystem) {
         publisher.register(new SendMailAboutRegisteredPersonObserver(mailSender));
         publisher.register(new SendMailAboutRegisteredCompanyObserver(mailSender));
         publisher.register(new NotifyExternalSystemObserver(externalSystem));
-        return publisher;
     }
 }

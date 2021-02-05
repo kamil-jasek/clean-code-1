@@ -1,6 +1,9 @@
 package pl.sda.refactoring.customers;
 
 import java.util.Objects;
+import pl.sda.refactoring.customers.dto.Email;
+import pl.sda.refactoring.customers.dto.Name;
+import pl.sda.refactoring.customers.dto.Vat;
 
 final class Company extends Customer {
 

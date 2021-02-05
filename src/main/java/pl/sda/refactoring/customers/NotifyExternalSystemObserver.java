@@ -2,13 +2,17 @@ package pl.sda.refactoring.customers;
 
 import static java.util.Objects.requireNonNull;
 
+import pl.sda.refactoring.application.events.Event;
+import pl.sda.refactoring.application.events.EventObserver;
 import pl.sda.refactoring.customers.ExternalSystem.RegisteredCustomer;
+import pl.sda.refactoring.customers.events.RegisteredCompanyEvent;
+import pl.sda.refactoring.customers.events.RegisteredPersonEvent;
 
 final class NotifyExternalSystemObserver implements EventObserver<Event> {
 
     private final ExternalSystem externalSystem;
 
-    NotifyExternalSystemObserver(ExternalSystem externalSystem) {
+    public NotifyExternalSystemObserver(ExternalSystem externalSystem) {
         this.externalSystem = requireNonNull(externalSystem);
     }
 

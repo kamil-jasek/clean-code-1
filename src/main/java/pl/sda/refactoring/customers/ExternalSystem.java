@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 import java.util.UUID;
 
-public interface ExternalSystem {
+interface ExternalSystem {
 
     class RegisteredCustomer {
         private final UUID id;

@@ -2,7 +2,20 @@ package pl.sda.refactoring.customers;
 
 import static java.util.Objects.requireNonNull;
 
-public class CustomerService {
+import pl.sda.refactoring.application.events.EventPublisher;
+import pl.sda.refactoring.customers.dto.Email;
+import pl.sda.refactoring.customers.dto.Pesel;
+import pl.sda.refactoring.customers.dto.RegisterCompany;
+import pl.sda.refactoring.customers.dto.RegisterPerson;
+import pl.sda.refactoring.customers.dto.RegisteredCompany;
+import pl.sda.refactoring.customers.dto.RegisteredPerson;
+import pl.sda.refactoring.customers.dto.UpdateAddress;
+import pl.sda.refactoring.customers.dto.UpdatedAddress;
+import pl.sda.refactoring.customers.dto.Vat;
+import pl.sda.refactoring.customers.exceptions.CustomerExistsException;
+import pl.sda.refactoring.customers.exceptions.CustomerNotExistsException;
+
+class CustomerService {
 
     private final CustomerDao dao;
     private final EventPublisher eventPublisher;

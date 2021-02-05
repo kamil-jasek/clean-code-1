@@ -1,5 +1,6 @@
 package pl.sda.refactoring.customers;
 
+import pl.sda.refactoring.application.mail.MailSender;
 import pl.sda.refactoring.customers.TestMailSender.MailData;
 
 final class TestMailSender extends TestCapture<MailData> implements MailSender {

@@ -1,5 +1,14 @@
 package pl.sda.refactoring.customers;
 
+import pl.sda.refactoring.customers.dto.RegisterCompany;
+import pl.sda.refactoring.customers.dto.RegisterPerson;
+import pl.sda.refactoring.customers.dto.RegisteredCompany;
+import pl.sda.refactoring.customers.dto.RegisteredPerson;
+import pl.sda.refactoring.customers.dto.UpdateAddress;
+import pl.sda.refactoring.customers.dto.UpdatedAddress;
+import pl.sda.refactoring.customers.events.RegisteredCompanyEvent;
+import pl.sda.refactoring.customers.events.RegisteredPersonEvent;
+
 final class CustomerMapper {
 
     Person map(RegisterPerson registerPerson) {

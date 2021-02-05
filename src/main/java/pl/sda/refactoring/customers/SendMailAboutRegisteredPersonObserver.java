@@ -2,11 +2,16 @@ package pl.sda.refactoring.customers;
 
 import static java.util.Objects.requireNonNull;
 
+import pl.sda.refactoring.application.events.Event;
+import pl.sda.refactoring.application.events.EventObserver;
+import pl.sda.refactoring.application.mail.MailSender;
+import pl.sda.refactoring.customers.events.RegisteredPersonEvent;
+
 final class SendMailAboutRegisteredPersonObserver implements EventObserver<RegisteredPersonEvent> {
 
     private final MailSender mailSender;
 
-    SendMailAboutRegisteredPersonObserver(MailSender mailSender) {
+    public SendMailAboutRegisteredPersonObserver(MailSender mailSender) {
         this.mailSender = requireNonNull(mailSender);
     }
 

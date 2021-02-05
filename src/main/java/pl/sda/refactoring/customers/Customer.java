@@ -3,6 +3,9 @@ package pl.sda.refactoring.customers;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+import pl.sda.refactoring.customers.dto.CustomerVerification;
+import pl.sda.refactoring.customers.dto.CustomerVerifier;
+import pl.sda.refactoring.customers.dto.Email;
 
 abstract class Customer {
 

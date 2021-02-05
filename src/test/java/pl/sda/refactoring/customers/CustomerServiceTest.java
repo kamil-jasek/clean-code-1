@@ -12,6 +12,18 @@ import static org.mockito.Mockito.mock;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import pl.sda.refactoring.application.events.EventPublisher;
+import pl.sda.refactoring.customers.dto.CustomerVerifier;
+import pl.sda.refactoring.customers.dto.Email;
+import pl.sda.refactoring.customers.dto.Name;
+import pl.sda.refactoring.customers.dto.Pesel;
+import pl.sda.refactoring.customers.dto.RegisterCompany;
+import pl.sda.refactoring.customers.dto.RegisterPerson;
+import pl.sda.refactoring.customers.dto.UpdateAddress;
+import pl.sda.refactoring.customers.dto.UpdatedAddress;
+import pl.sda.refactoring.customers.dto.Vat;
+import pl.sda.refactoring.customers.exceptions.CustomerExistsException;
+import pl.sda.refactoring.customers.exceptions.CustomerNotExistsException;
 
 class CustomerServiceTest {
 
