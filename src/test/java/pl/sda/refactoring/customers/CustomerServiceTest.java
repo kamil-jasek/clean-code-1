@@ -21,6 +21,24 @@ class CustomerServiceTest {
     private final CustomerService service = new CustomerService(dao, mailSender);
 
     @Test
+    void shouldNotRegisterPersonWhenAlreadyExists() {
+        // given
+        given(dao.emailExists(any())).willReturn(true);
+        given(dao.peselExists(any())).willReturn(true);
+
+        // when
+        final var result = service.registerPerson(new RegisterPerson(
+            Email.of("em@test.com"),
+            Name.of("Jan"),
+            Name.of("Kowalski"),
+            Pesel.of("92893202093"),
+            false));
+
+        // then
+        assertFalse(result);
+    }
+
+    @Test
     void shouldRegisterNotVerifiedPerson() {
         // when
         final var result = service.registerPerson(
@@ -69,10 +87,30 @@ class CustomerServiceTest {
     }
 
     @Test
+    void shouldNotRegisterCompanyIfExists() {
+        // given
+        given(dao.emailExists(any())).willReturn(true);
+        given(dao.vatExists(any())).willReturn(true);
+
+        // when
+        final var result = service.registerCompany(new RegisterCompany(
+            Email.of("em@test.com"),
+            Name.of("Test S.A."),
+            Vat.of("8384783833"),
+            false));
+
+        // then
+        assertFalse(result);
+    }
+
+    @Test
     void shouldRegisterNotVerifiedCompany() {
         // when
         final var result = service.registerCompany(
-            new RegisterCompany(Email.of("em@test.com"), Name.of("Test S.A."), Vat.of("8384783833"), false));
+            new RegisterCompany(Email.of("em@test.com"),
+                Name.of("Test S.A."),
+                Vat.of("8384783833"),
+                false));
 
         // then
         final var customer = (Company) verifyCustomerSaved();
