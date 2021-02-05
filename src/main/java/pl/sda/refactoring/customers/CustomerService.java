@@ -6,10 +6,12 @@ public class CustomerService {
 
     private final CustomerDao dao;
     private final MailSender mailSender;
+    private final CustomerMapper mapper;
 
-    public CustomerService(CustomerDao dao, MailSender mailSender) {
+    public CustomerService(CustomerDao dao, MailSender mailSender, CustomerMapper mapper) {
         this.dao = requireNonNull(dao);
         this.mailSender = requireNonNull(mailSender);
+        this.mapper = requireNonNull(mapper);
     }
 
     public RegisteredPerson registerPerson(RegisterPerson registerPerson) {
@@ -18,10 +20,7 @@ public class CustomerService {
                 ", or pesel: " + registerPerson.getPesel() + " already exists");
         }
 
-        final var person = new Person(registerPerson.getEmail(),
-            registerPerson.getFirstName(),
-            registerPerson.getLastName(),
-            registerPerson.getPesel());
+        final var person = mapper.map(registerPerson);
 
         String subj;
         String body;
@@ -37,14 +36,7 @@ public class CustomerService {
         }
         dao.save(person);
         mailSender.send(registerPerson.getEmail(), subj, body);
-
-        return new RegisteredPerson(person.getId(),
-            person.getEmail().getValue(),
-            person.getCreateTime(),
-            person.getFirstName().getValue(),
-            person.getLastName().getValue(),
-            person.getPesel().getValue(),
-            person.getCustomerVerification());
+        return mapper.mapToRegisteredPerson(person);
     }
 
     private boolean personExists(Email email, Pesel pesel) {
@@ -57,9 +49,7 @@ public class CustomerService {
                 " or VAT: " + registerCompany.getVat() + " already exists");
         }
 
-        final var company = new Company(registerCompany.getEmail(),
-            registerCompany.getName(),
-            registerCompany.getVat());
+        final var company = mapper.map(registerCompany);
 
         String subj;
         String body;
@@ -76,31 +66,21 @@ public class CustomerService {
         dao.save(company);
         mailSender.send(registerCompany.getEmail(), subj, body);
 
-        return new RegisteredCompany(company.getId(),
-            company.getEmail().getValue(),
-            company.getCreateTime(),
-            company.getName().getValue(),
-            company.getVat().getValue(),
-            company.getCustomerVerification());
+        return mapper.mapToRegisteredCompany(company);
     }
 
     private boolean companyExists(Email email, Vat vat) {
         return dao.emailExists(email) || dao.vatExists(vat);
     }
 
-    public boolean updateAddress(UpdateAddress updateAddress) {
-        return dao.findById(updateAddress.getCustomerId())
-            .map(customer -> updateCustomerAddress(updateAddress, customer))
-            .orElse(false);
-    }
-
-    private boolean updateCustomerAddress(UpdateAddress updateAddress, Customer customer) {
-        customer.updateAddress(new Address(updateAddress.getStreet(),
-            updateAddress.getCity(),
-            updateAddress.getZipCode(),
-            updateAddress.getCountryCode()));
+    public UpdatedAddress updateAddress(UpdateAddress updateAddress) {
+        final var customer = dao
+            .findById(updateAddress.getCustomerId())
+            .orElseThrow(() -> new CustomerNotExistsException(
+                "Cannot find customer with id: " + updateAddress.getCustomerId()));
+        customer.updateAddress(mapper.mapAddress(updateAddress));
         dao.save(customer);
-        return true;
+        return mapper.mapToUpdatedAddress(updateAddress);
     }
 
 }

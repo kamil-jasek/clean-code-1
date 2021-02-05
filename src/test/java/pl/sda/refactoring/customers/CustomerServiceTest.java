@@ -8,18 +8,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 class CustomerServiceTest {
 
     private final CustomerDao dao = mock(CustomerDao.class);
     private final MailSender mailSender = mock(MailSender.class);
-    private final CustomerService service = new CustomerService(dao, mailSender);
+    private final CustomerService service = new CustomerService(dao, mailSender, new CustomerMapper());
 
     @Test
     void shouldNotRegisterPersonWhenAlreadyExists() {
@@ -139,14 +137,11 @@ class CustomerServiceTest {
         given(dao.findById(any())).willReturn(Optional.empty());
 
         // when
-        final var result = service.updateAddress(new UpdateAddress(UUID.randomUUID(),
+        assertThrows(CustomerNotExistsException.class, () -> service.updateAddress(new UpdateAddress(UUID.randomUUID(),
             "str",
             "02-303",
             "Wawa",
-            "PL"));
-
-        // then
-        assertFalse(result);
+            "PL")));
     }
 
     @Test
@@ -156,24 +151,17 @@ class CustomerServiceTest {
             Name.of("test"),
             Name.of("test"),
             Pesel.of("19393929329"))));
+        final var customerId = UUID.fromString("df55ad5d-6d50-4e52-8599-b4abb23a27d1");
 
         // when
-        final var result = service.updateAddress(new UpdateAddress(UUID.randomUUID(),
+        final var updatedAddress = service.updateAddress(new UpdateAddress(customerId,
             "str",
             "02-303",
             "Wawa",
             "PL"));
 
         // then
-        final var customer = verifyCustomerSaved();
-        assertTrue(result);
-        assertEquals(new Address("str", "Wawa", "02-303", "PL"), customer.getAddress());
+        assertNotNull(updatedAddress);
+        assertEquals(new UpdatedAddress(customerId, "str", "02-303", "Wawa", "PL"), updatedAddress);
     }
-
-    private Customer verifyCustomerSaved() {
-        final var captor = ArgumentCaptor.forClass(Customer.class);
-        verify(dao).save(captor.capture());
-        return captor.getValue();
-    }
-
 }
