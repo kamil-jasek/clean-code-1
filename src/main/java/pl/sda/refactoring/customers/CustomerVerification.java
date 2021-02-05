@@ -5,23 +5,17 @@ import java.util.Objects;
 
 final class CustomerVerification {
 
-    private final boolean verified;
     private final LocalDateTime verificationTime;
     private final CustomerVerifier verifier;
 
     public CustomerVerification(LocalDateTime verificationTime,
         CustomerVerifier verifier) {
-        this.verified = true;
         this.verificationTime = verificationTime;
         this.verifier = verifier;
     }
 
     public LocalDateTime getVerificationTime() {
         return verificationTime;
-    }
-
-    public boolean isVerified() {
-        return verified;
     }
 
     public CustomerVerifier getVerifier() {
@@ -37,11 +31,11 @@ final class CustomerVerification {
             return false;
         }
         CustomerVerification that = (CustomerVerification) o;
-        return verified == that.verified && verificationTime.equals(that.verificationTime) && verifier == that.verifier;
+        return verificationTime.equals(that.verificationTime) && verifier == that.verifier;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(verified, verificationTime, verifier);
+        return Objects.hash(verificationTime, verifier);
     }
 }

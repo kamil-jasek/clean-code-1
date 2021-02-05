@@ -3,6 +3,7 @@ package pl.sda.refactoring.customers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -27,21 +28,18 @@ class CustomerServiceTest {
         given(dao.peselExists(any())).willReturn(true);
 
         // when
-        final var result = service.registerPerson(new RegisterPerson(
+        assertThrows(CustomerExistsException.class, () -> service.registerPerson(new RegisterPerson(
             Email.of("em@test.com"),
             Name.of("Jan"),
             Name.of("Kowalski"),
             Pesel.of("92893202093"),
-            false));
-
-        // then
-        assertFalse(result);
+            false)));
     }
 
     @Test
     void shouldRegisterNotVerifiedPerson() {
         // when
-        final var result = service.registerPerson(
+        final var registeredPerson = service.registerPerson(
             new RegisterPerson(Email.of("em@test.com"),
                 Name.of("Jan"),
                 Name.of("Kowalski"),
@@ -49,22 +47,20 @@ class CustomerServiceTest {
                 false));
 
         // then
-        final var person = (Person) verifyCustomerSaved();
-        assertTrue(result);
-        assertEquals(Customer.PERSON, person.getType());
-        assertNotNull(person.getId());
-        assertFalse(person.isVerified());
-        assertEquals(Email.of("em@test.com"), person.getEmail());
-        assertEquals(Name.of("Jan"), person.getFirstName());
-        assertEquals(Name.of("Kowalski"), person.getLastName());
-        assertEquals(Pesel.of("92893202093"), person.getPesel());
-        assertNotNull(person.getCreateTime());
+        assertNotNull(registeredPerson);
+        assertNotNull(registeredPerson.getId());
+        assertFalse(registeredPerson.isVerified());
+        assertEquals("em@test.com", registeredPerson.getEmail());
+        assertEquals("Jan", registeredPerson.getFirstName());
+        assertEquals("Kowalski", registeredPerson.getLastName());
+        assertEquals("92893202093", registeredPerson.getPesel());
+        assertNotNull(registeredPerson.getCreateTime());
     }
 
     @Test
     void shouldRegisterVerifiedPerson() {
         // when
-        final var result = service.registerPerson(
+        final var registeredPerson = service.registerPerson(
             new RegisterPerson(Email.of("em@test.com"),
                 Name.of("Jan"),
                 Name.of("Kowalski"),
@@ -72,18 +68,15 @@ class CustomerServiceTest {
                 true));
 
         // then
-        final var person = (Person) verifyCustomerSaved();
-        assertTrue(result);
-        assertEquals(Customer.PERSON, person.getType());
-        assertNotNull(person.getId());
-        assertNotNull(person.getCreateTime());
-        assertTrue(person.isVerified());
-        assertNotNull(person.getCustomerVerification().getVerificationTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, person.getCustomerVerification().getVerifier());
-        assertEquals(Email.of("em@test.com"), person.getEmail());
-        assertEquals(Name.of("Jan"), person.getFirstName());
-        assertEquals(Name.of("Kowalski"), person.getLastName());
-        assertEquals(Pesel.of("92893202093"), person.getPesel());
+        assertNotNull(registeredPerson.getId());
+        assertNotNull(registeredPerson.getCreateTime());
+        assertTrue(registeredPerson.isVerified());
+        assertNotNull(registeredPerson.getVerification().getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, registeredPerson.getVerification().getVerifier());
+        assertEquals("em@test.com", registeredPerson.getEmail());
+        assertEquals("Jan", registeredPerson.getFirstName());
+        assertEquals("Kowalski", registeredPerson.getLastName());
+        assertEquals("92893202093", registeredPerson.getPesel());
     }
 
     @Test

@@ -12,9 +12,10 @@ public class CustomerService {
         this.mailSender = requireNonNull(mailSender);
     }
 
-    public boolean registerPerson(RegisterPerson registerPerson) {
+    public RegisteredPerson registerPerson(RegisterPerson registerPerson) {
         if (personExists(registerPerson.getEmail(), registerPerson.getPesel())) {
-            return false;
+            throw new CustomerExistsException("Email: " + registerPerson.getEmail() +
+                ", or pesel: " + registerPerson.getPesel() + " already exists");
         }
 
         final var person = new Person(registerPerson.getEmail(),
@@ -36,7 +37,14 @@ public class CustomerService {
         }
         dao.save(person);
         mailSender.send(registerPerson.getEmail(), subj, body);
-        return true;
+
+        return new RegisteredPerson(person.getId(),
+            person.getEmail().getValue(),
+            person.getCreateTime(),
+            person.getFirstName().getValue(),
+            person.getLastName().getValue(),
+            person.getPesel().getValue(),
+            person.getCustomerVerification());
     }
 
     private boolean personExists(Email email, Pesel pesel) {
