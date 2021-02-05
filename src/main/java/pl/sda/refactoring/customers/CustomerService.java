@@ -51,19 +51,20 @@ public class CustomerService {
         return dao.emailExists(email) || dao.peselExists(pesel);
     }
 
-    public boolean registerCompany(RegisterCompany registerCompany) {
+    public RegisteredCompany registerCompany(RegisterCompany registerCompany) {
         if (companyExists(registerCompany.getEmail(), registerCompany.getVat())) {
-            return false;
+            throw new CustomerExistsException("Email: " + registerCompany.getEmail() +
+                " or VAT: " + registerCompany.getVat() + " already exists");
         }
 
-        var customer = new Company(registerCompany.getEmail(),
+        final var company = new Company(registerCompany.getEmail(),
             registerCompany.getName(),
             registerCompany.getVat());
 
         String subj;
         String body;
         if (registerCompany.isVerified()) {
-            customer.markVerified();
+            company.markVerified();
             subj = "Your are now verified customer!";
             body = "<b>Your company: " + registerCompany.getName() + " is ready to make na order.</b><br/>" +
                 "Thank you for registering in our service. Now you are verified customer!";
@@ -72,10 +73,15 @@ public class CustomerService {
             body = "<b>Hello</b><br/>" +
                 "We registered your company: " + registerCompany.getName() + " in our service. Please wait for verification!";
         }
-        dao.save(customer);
+        dao.save(company);
         mailSender.send(registerCompany.getEmail(), subj, body);
 
-        return true;
+        return new RegisteredCompany(company.getId(),
+            company.getEmail().getValue(),
+            company.getCreateTime(),
+            company.getName().getValue(),
+            company.getVat().getValue(),
+            company.getCustomerVerification());
     }
 
     private boolean companyExists(Email email, Vat vat) {

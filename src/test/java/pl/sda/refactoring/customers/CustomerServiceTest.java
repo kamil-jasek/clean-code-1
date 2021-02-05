@@ -86,55 +86,51 @@ class CustomerServiceTest {
         given(dao.vatExists(any())).willReturn(true);
 
         // when
-        final var result = service.registerCompany(new RegisterCompany(
+        assertThrows(CustomerExistsException.class, () -> service.registerCompany(new RegisterCompany(
             Email.of("em@test.com"),
             Name.of("Test S.A."),
             Vat.of("8384783833"),
-            false));
-
-        // then
-        assertFalse(result);
+            false)));
     }
 
     @Test
     void shouldRegisterNotVerifiedCompany() {
         // when
-        final var result = service.registerCompany(
+        final var registeredCompany = service.registerCompany(
             new RegisterCompany(Email.of("em@test.com"),
                 Name.of("Test S.A."),
                 Vat.of("8384783833"),
                 false));
 
         // then
-        final var customer = (Company) verifyCustomerSaved();
-        assertTrue(result);
-        assertEquals(Customer.COMPANY, customer.getType());
-        assertNotNull(customer.getId());
-        assertNotNull(customer.getCreateTime());
-        assertFalse(customer.isVerified());
-        assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Test S.A."), customer.getName());
-        assertEquals(Vat.of("8384783833"), customer.getVat());
+        assertNotNull(registeredCompany);
+        assertNotNull(registeredCompany.getId());
+        assertNotNull(registeredCompany.getCreateTime());
+        assertFalse(registeredCompany.isVerified());
+        assertEquals("em@test.com", registeredCompany.getEmail());
+        assertEquals("Test S.A.", registeredCompany.getName());
+        assertEquals("8384783833", registeredCompany.getVat());
     }
 
     @Test
     void shouldRegisterVerifiedCompany() {
         // when
-        final var result = service.registerCompany(
-            new RegisterCompany(Email.of("em@test.com"), Name.of("Test S.A."), Vat.of("8384783833"), true));
+        final var customer = service.registerCompany(new RegisterCompany(
+            Email.of("em@test.com"),
+            Name.of("Test S.A."),
+            Vat.of("8384783833"),
+            true));
 
         // then
-        final var customer = (Company) verifyCustomerSaved();
-        assertTrue(result);
-        assertEquals(Customer.COMPANY, customer.getType());
+        assertNotNull(customer);
         assertNotNull(customer.getId());
         assertNotNull(customer.getCreateTime());
         assertTrue(customer.isVerified());
-        assertNotNull(customer.getCustomerVerification().getVerificationTime());
-        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getCustomerVerification().getVerifier());
-        assertEquals(Email.of("em@test.com"), customer.getEmail());
-        assertEquals(Name.of("Test S.A."), customer.getName());
-        assertEquals(Vat.of("8384783833"), customer.getVat());
+        assertNotNull(customer.getVerification().getVerificationTime());
+        assertEquals(CustomerVerifier.AUTO_EMAIL, customer.getVerification().getVerifier());
+        assertEquals("em@test.com", customer.getEmail());
+        assertEquals("Test S.A.", customer.getName());
+        assertEquals("8384783833", customer.getVat());
     }
 
     @Test
