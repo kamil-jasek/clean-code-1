@@ -2,6 +2,7 @@ package pl.sda.refactoring.customers;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public interface ExternalSystem {
@@ -33,6 +34,23 @@ public interface ExternalSystem {
 
         public String getTaxId() {
             return taxId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            RegisteredCustomer that = (RegisteredCustomer) o;
+            return id.equals(that.id) && email.equals(that.email) && name.equals(that.name) && taxId.equals(that.taxId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, email, name, taxId);
         }
     }
 

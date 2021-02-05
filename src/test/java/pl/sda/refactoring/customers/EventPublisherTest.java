@@ -1,23 +1,24 @@
 package pl.sda.refactoring.customers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.sda.refactoring.customers.ExternalSystem.RegisteredCustomer;
 
 class EventPublisherTest {
 
     private final EventPublisherConfig config = new EventPublisherConfig();
     private final TestMailSender mailSender = new TestMailSender();
-    private final ExternalSystem externalSystem = mock(ExternalSystem.class);
+    private final TestExternalSystem externalSystem = new TestExternalSystem();
     private final EventPublisher publisher = config.configure(mailSender, externalSystem);
 
     @BeforeEach
     void beforeTest() {
         mailSender.reset();
+        externalSystem.reset();
     }
 
     @Test
@@ -34,10 +35,11 @@ class EventPublisherTest {
         ));
 
         // then
-        assertEquals("em@test.com", mailSender.getRecipient());
-        assertEquals("Your are now verified customer!", mailSender.getSubject());
+        final var capture = mailSender.getCapture();
+        assertEquals("em@test.com", capture.getRecipient());
+        assertEquals("Your are now verified customer!", capture.getSubject());
         assertEquals("<b>Hi Jan</b><br/>Thank you for registering in our service. Now you are verified customer!",
-            mailSender.getBody());
+            capture.getBody());
     }
 
     @Test
@@ -53,10 +55,11 @@ class EventPublisherTest {
             null));
 
         // then
-        assertEquals("em@test.com", mailSender.getRecipient());
-        assertEquals("Waiting for verification", mailSender.getSubject());
+        final var capture = mailSender.getCapture();
+        assertEquals("em@test.com", capture.getRecipient());
+        assertEquals("Waiting for verification", capture.getSubject());
         assertEquals("<b>Hi Jan</b><br/>We registered you in our service. Please wait for verification!",
-            mailSender.getBody());
+            capture.getBody());
     }
 
     @Test
@@ -71,11 +74,12 @@ class EventPublisherTest {
             new CustomerVerification(LocalDateTime.now(), CustomerVerifier.AUTO_EMAIL)));
 
         // then
-        assertEquals("em@test.com", mailSender.getRecipient());
-        assertEquals("Your are now verified customer!", mailSender.getSubject());
+        final var capture = mailSender.getCapture();
+        assertEquals("em@test.com", capture.getRecipient());
+        assertEquals("Your are now verified customer!", capture.getSubject());
         assertEquals("<b>Your company: test is ready to make na order.</b><br/>"
                 + "Thank you for registering in our service. Now you are verified customer!",
-            mailSender.getBody());
+            capture.getBody());
     }
 
     @Test
@@ -90,9 +94,47 @@ class EventPublisherTest {
             null));
 
         // then
-        assertEquals("em@test.com", mailSender.getRecipient());
-        assertEquals("Waiting for verification", mailSender.getSubject());
+        final var capture = mailSender.getCapture();
+        assertEquals("em@test.com", capture.getRecipient());
+        assertEquals("Waiting for verification", capture.getSubject());
         assertEquals("<b>Hello</b><br/>We registered your company: test in our service. Please wait for verification!",
-            mailSender.getBody());
+            capture.getBody());
+    }
+
+    @Test
+    void shouldNotifyExternalSystemAboutRegisteredCompany() {
+        // given
+        final var customerId = UUID.randomUUID();
+
+        // when
+        publisher.publish(new RegisteredCompanyEvent(
+            customerId,
+            "em@test.com",
+            LocalDateTime.now(),
+            "test",
+            "93839402033",
+            null));
+
+        // then
+        assertEquals(new RegisteredCustomer(customerId, "em@test.com", "test", "93839402033"), externalSystem.getCapture());
+    }
+
+    @Test
+    void shouldNotifyExternalSystemAboutRegisteredPerson() {
+        // given
+        final var customerId = UUID.randomUUID();
+
+        // when
+        publisher.publish(new RegisteredPersonEvent(
+            customerId,
+            "em@test.com",
+            LocalDateTime.now(),
+            "Jan",
+            "Nowak",
+            "8304020340430",
+            null));
+
+        // then
+        assertEquals(new RegisteredCustomer(customerId, "em@test.com", "Jan Nowak", "8304020340430"), externalSystem.getCapture());
     }
 }
